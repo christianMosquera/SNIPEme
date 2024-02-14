@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "179678937601",
+    "project_id": "snipeme-22003",
+    "storage_bucket": "snipeme-22003.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:179678937601:android:df344d10eb30b9ebaf3600",
+        "android_client_info": {
+          "package_name": "com.snipeme"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDy0tWcbCIZNK3WhdL2nfVi50OgEZgPaWk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
