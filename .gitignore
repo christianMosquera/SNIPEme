@@ -67,3 +67,6 @@ yarn-error.log
 
 
 .expo
+
+ios/Podfile.lock
+/package-lock.json
