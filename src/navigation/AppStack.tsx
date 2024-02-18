@@ -16,7 +16,10 @@ const Tab = createBottomTabNavigator();
 function AppStack(): React.JSX.Element {
   return (
     <NavigationContainer>
-      <Tab.Navigator>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false, // Hide the header bar
+        }}>
         <Tab.Screen name="Camera" component={CameraScreen} />
       </Tab.Navigator>
     </NavigationContainer>
