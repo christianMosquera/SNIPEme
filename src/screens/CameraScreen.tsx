@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, AppState, AppStateStatus} from 'react-native'
+import { View, Text, StyleSheet, AppState, AppStateStatus, Image } from 'react-native'
 import { useIsFocused } from '@react-navigation/native';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera'
 import { Button } from 'react-native-paper';
@@ -47,14 +47,26 @@ const CameraScreen = () => {
   const [cameraDirection, setCameraDirection] = useState<'front' | 'back'>('back')
   const device = useCameraDevice(cameraDirection);
   const camera = useRef<Camera>(null)
+  const [photoPath, setPhotoPath] = useState<string | null>(null)
   async function takePhoto() {
     const photo = await camera.current?.takePhoto({
       flash: device?.hasFlash ? flash : 'off',
     })
-    console.log(photo)
+    setPhotoPath(photo?.path ?? null)
   }
 
   if (hasPermission) {
+    if (photoPath) {
+      return (<View style={StyleSheet.absoluteFill}>
+        <Image style={StyleSheet.absoluteFill} src={'file://' + photoPath} alt="captured photo" />
+        <Button onPress={() => setPhotoPath(null)} style={{position: 'absolute', bottom: 20, left: 50, alignSelf: 'flex-start', backgroundColor: 'white'}}>
+          <Text style={{color: 'black'}}>Retake</Text>
+        </Button>
+        <Button onPress={() => {console.log("post!")}} style={{position: 'absolute', bottom: 20, right: 50, alignSelf: 'flex-end', backgroundColor: 'black'}}>
+          <Text style={{color: 'white'}}>Post!</Text>
+        </Button>
+      </View>)
+    }
     if (!device) {
       return <Text>Loading...</Text>;
     }
