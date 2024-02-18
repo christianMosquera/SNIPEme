@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import {Text, StyleSheet } from 'react-native';
-import { Camera, useCameraPermission } from 'react-native-vision-camera'
+import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera'
 
 const CameraScreen = () => {
   const { hasPermission, requestPermission } = useCameraPermission()
@@ -12,7 +12,11 @@ const CameraScreen = () => {
   }, [hasPermission]);
 
   if (hasPermission) {
-    const device = Camera.getAvailableCameraDevices()[1];
+    const device = useCameraDevice('front');
+    if (!device) {
+      return <Text>Loading...</Text>;
+    }
+    console.log(device.position);
     return (
       <Camera
         style={StyleSheet.absoluteFill}
