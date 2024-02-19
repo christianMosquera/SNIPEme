@@ -22,25 +22,3 @@ const styles = StyleSheet.create({
     // Add padding or margins as needed
   },
 });
-
-// const ProfileScreen = () => {
-//     //   // Dummy data for example purposes
-//     //   const profileData = {
-//     //     username: 'tidbutt',
-//     //     name: 'Tidbit',
-//     //     profilePictureUri: 'https://example.com/profile.jpg',
-//     //     streakCount: 5,
-//     //     friendsCount: 100,
-//     //   };
-
-//     return (
-//       <View>
-//         {/* <ProfileHeader
-//           {...profileData}
-//           onStreakPress={() => {}}
-//           onFriendsPress={() => {}}
-//         /> */}
-//         <ProfileHeader></ProfileHeader>
-//       </View>
-//     );
-//   };
