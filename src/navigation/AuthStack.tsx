@@ -14,19 +14,45 @@ import SignUpScreen from '../screens/SignUpScreen';
 import LoginScreen from '../screens/LoginScreen';
 import InitialScreen from '../screens/WelcomeScreen';
 import {StackParamList} from '../types/StackParamList';
+import PasswordScreen from '../screens/PasswordScreen';
+import ArrowHeader from '../components/ArrowHeader';
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
 const AuthStack = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Welcome">
-        <Stack.Screen name="Login" component={LoginScreen} />
-        <Stack.Screen name="SignUp" component={SignUpScreen} />
+      <Stack.Navigator
+        screenOptions={{
+          headerTransparent: true,
+          headerLeft: () => <ArrowHeader />,
+        }}
+        initialRouteName="Welcome">
+        <Stack.Screen
+          name="Login"
+          options={{
+            headerTitle: '',
+          }}
+          component={LoginScreen}
+        />
+        <Stack.Screen
+          name="SignUp"
+          options={{
+            headerTitle: '',
+          }}
+          component={SignUpScreen}
+        />
         <Stack.Screen
           name="Welcome"
           options={{headerShown: false}}
           component={InitialScreen}
+        />
+        <Stack.Screen
+          name="Password"
+          options={{
+            headerTitle: '',
+          }}
+          component={PasswordScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>

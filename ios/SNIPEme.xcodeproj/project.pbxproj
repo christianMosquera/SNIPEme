@@ -16,6 +16,7 @@
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		BA5EB8962B7AE70B00BB552F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BA5EB8952B7AE70B00BB552F /* GoogleService-Info.plist */; };
 		BA5EB89C2B7AFFEA00BB552F /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = BA5EB89B2B7AFFEA00BB552F /* GoogleService-Info.plist */; };
+		BAA4DFB52B81EDE900766916 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = BAA4DFB42B81EDE900766916 /* Fonts */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -48,6 +49,7 @@
 		BA5EB8952B7AE70B00BB552F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BA5EB89B2B7AFFEA00BB552F /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		BA5EB89D2B7DCCAE00BB552F /* Heebo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Heebo.ttf; path = ../assets/fonts/Heebo.ttf; sourceTree = "<group>"; };
+		BAA4DFB42B81EDE900766916 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = "../node_modules/react-native-vector-icons/Fonts"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -91,6 +93,7 @@
 		13B07FAE1A68108700A75B9A /* SNIPEme */ = {
 			isa = PBXGroup;
 			children = (
+				BAA4DFB42B81EDE900766916 /* Fonts */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -250,6 +253,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BAA4DFB52B81EDE900766916 /* Fonts in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				BA5EB8962B7AE70B00BB552F /* GoogleService-Info.plist in Resources */,
@@ -615,7 +619,10 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -694,7 +701,10 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = "$(inherited)  ";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					" ",
+				);
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
