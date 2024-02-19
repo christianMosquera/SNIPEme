@@ -80,81 +80,41 @@ const styles = StyleSheet.create({
     flex: 1,
     // backgroundColor: 'violet',
   },
-  //   buttonContainer: {
-  //     flexDirection: 'row',
-  //     justifyContent: 'space-around',
-  //     // padding: 10,
-  //   },
-  //   button: {
-  //     flex: 1,
-  //     alignItems: 'center', // Center the text within the button
-  //     justifyContent: 'center', // Center the text vertically
-  //     // paddingVertical: 8,
-  //     height: 50,
-  //     // marginBottom: 8,
-  //     backgroundColor: 'lightgrey',
-  //   },
-  //   selectedButton: {
-  //     flex: 1,
-  //     alignItems: 'center',
-  //     justifyContent: 'center',
-  //     paddingVertical: 8,
-  //     height: 50,
-  //     // marginBottom: 8,
-  //     backgroundColor: 'blue',
-  //   },
   imageContainer: {
     flex: 1,
     flexDirection: 'column',
     margin: 1,
   },
   image: {
-    height: 100, // Set a fixed height for the images
+    height: 100, 
     flex: 1,
   },
-  //   touchable: {
-  //     flex: 1, // Ensure TouchableOpacity stretches
-  //   },
-  //   buttonText: {
-  //     color: 'white',
-  //     fontSize: 16, // Set the font size as needed
-  //     // Add textAlign if needed (though it should be centered by default)
-  //     textAlign: 'center',
-  //   },
   buttonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
-    // paddingVertical: 10, // Padding only at the top and bottom to avoid affecting width
   },
-
   button: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50, // Fixed height for the buttons
+    height: 50,
     backgroundColor: 'black',
-    // paddingVertical: 10,
   },
-
   selectedButton: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    height: 50, // Fixed height for the buttons
+    height: 50,
     backgroundColor: 'black',
     borderBottomColor: 'white',
     borderBottomWidth: 5.2,
-    // paddingVertical: 10,
   },
-
   touchable: {
-    flex: 1, // Ensure TouchableOpacity stretches
+    flex: 1,
     // borderColor: 'red', // Border color for debugging
     // borderWidth: 1, // Border width for debugging
-    height: 50, // Fixed height for the buttons
-    // paddingVertical: 10,
+    height: 50, 
   },
-
   buttonText: {
     color: 'white',
     fontSize: 16,
