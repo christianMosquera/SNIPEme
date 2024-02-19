@@ -35,6 +35,7 @@
 		DC552CF52B7F1D1C00CB1828 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DC552CE22B7F1D1C00CB1828 /* SimpleLineIcons.ttf */; };
 		DC552CF62B7F1D1C00CB1828 /* FontAwesome6_Brands.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DC552CE32B7F1D1C00CB1828 /* FontAwesome6_Brands.ttf */; };
 		DC552CF72B7F1D1C00CB1828 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DC552CE42B7F1D1C00CB1828 /* MaterialIcons.ttf */; };
+		BAA4DFB52B81EDE900766916 /* Fonts in Resources */ = {isa = PBXBuildFile; fileRef = BAA4DFB42B81EDE900766916 /* Fonts */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -85,6 +86,8 @@
 		DC552CE22B7F1D1C00CB1828 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = SimpleLineIcons.ttf; sourceTree = "<group>"; };
 		DC552CE32B7F1D1C00CB1828 /* FontAwesome6_Brands.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome6_Brands.ttf; sourceTree = "<group>"; };
 		DC552CE42B7F1D1C00CB1828 /* MaterialIcons.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = MaterialIcons.ttf; sourceTree = "<group>"; };
+		BA5EB89D2B7DCCAE00BB552F /* Heebo.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = Heebo.ttf; path = ../assets/fonts/Heebo.ttf; sourceTree = "<group>"; };
+		BAA4DFB42B81EDE900766916 /* Fonts */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Fonts; path = "../node_modules/react-native-vector-icons/Fonts"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -129,6 +132,7 @@
 			isa = PBXGroup;
 			children = (
 				DC552CD12B7F1D1C00CB1828 /* Fonts */,
+				BAA4DFB42B81EDE900766916 /* Fonts */,
 				13B07FAF1A68108700A75B9A /* AppDelegate.h */,
 				13B07FB01A68108700A75B9A /* AppDelegate.mm */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
@@ -136,6 +140,7 @@
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				BA5EB89B2B7AFFEA00BB552F /* GoogleService-Info.plist */,
 				13B07FB71A68108700A75B9A /* main.m */,
+				BA5EB89D2B7DCCAE00BB552F /* Heebo.ttf */,
 			);
 			name = SNIPEme;
 			sourceTree = "<group>";
@@ -315,6 +320,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				DC552CEF2B7F1D1C00CB1828 /* FontAwesome5_Solid.ttf in Resources */,
+				BAA4DFB52B81EDE900766916 /* Fonts in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				DC552CF02B7F1D1C00CB1828 /* FontAwesome5_Regular.ttf in Resources */,
 				DC552CEB2B7F1D1C00CB1828 /* MaterialCommunityIcons.ttf in Resources */,
