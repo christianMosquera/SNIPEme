@@ -5,8 +5,7 @@ import {collection, doc, setDoc} from 'firebase/firestore';
 const storeUserInFirestore = async (
   user: User,
   username: string,
-  firstName: string,
-  lastName: string,
+  name: string,
 ) => {
   // Get user information
   const {uid, email} = user;
@@ -20,8 +19,7 @@ const storeUserInFirestore = async (
     await setDoc(userRef, {
       email,
       username,
-      firstName,
-      lastName,
+      name,
       // You can add more fields as needed
     });
   } catch (error) {
