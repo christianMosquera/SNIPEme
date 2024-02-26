@@ -51,7 +51,7 @@ const Post = ({snipe}:{snipe: ITSnipe}) => {
                     right={(props) => <IconButton {...props} icon="dots-horizontal" onPress={() => {}} />}
                 />
             </View>
-            <Card.Cover source={{ uri: snipe.image }} />
+            <Card.Cover source={{ uri: snipe.image }} style={{height: 435}} />
         </Card>
     )
 };
