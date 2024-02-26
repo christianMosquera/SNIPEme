@@ -13,6 +13,7 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
 import CameraScreen from '../screens/CameraScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import MainScreen from '../screens/MainScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -26,6 +27,7 @@ function AppStack(): React.JSX.Element {
         <Tab.Screen name="Home" component={HomeScreen} />
         <Tab.Screen name="Camera" component={CameraScreen} />
         <Tab.Screen name="Profile" component={ProfileScreen} />
+        <Tab.Screen name="Signout" component={MainScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );

@@ -1,6 +1,14 @@
 import {RouteProp, useRoute} from '@react-navigation/native';
 import React, {useState} from 'react';
-import {View, TextInput, Button, Text, StyleSheet, Alert} from 'react-native';
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  StyleSheet,
+  Alert,
+  SafeAreaView,
+} from 'react-native';
 import {StackParamList} from '../types/StackParamList';
 import storeUserInFirestore from '../utils/StoreUser';
 import {FIREBASE_AUTH} from '../../firebase';
@@ -10,7 +18,7 @@ import {COLORS} from '../assets/Colors';
 import CustomButton from '../components/CustomButton';
 import {Checkbox} from 'react-native-paper';
 
-const PasswordForm = () => {
+const PasswordScreen = () => {
   const route = useRoute<RouteProp<StackParamList>>();
   const email = route.params?.email;
   const username = route.params?.username;
@@ -94,7 +102,7 @@ const PasswordForm = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.text}>Create Password</Text>
       <View style={styles.inputContainer}>
         <TextInput
@@ -124,7 +132,7 @@ const PasswordForm = () => {
         {agreeError ? <Text style={styles.errorText}>{agreeError}</Text> : null}
         <CustomButton title="Sign Up" onPress={handleSignUp} disabled={false} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -177,4 +185,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PasswordForm;
+export default PasswordScreen;

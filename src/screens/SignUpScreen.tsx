@@ -1,11 +1,19 @@
 import React, {useEffect, useState} from 'react';
-import {View, TextInput, Button, StyleSheet, Text} from 'react-native';
+import {
+  View,
+  TextInput,
+  Button,
+  StyleSheet,
+  Text,
+  SafeAreaView,
+} from 'react-native';
 import CustomButton from '../components/CustomButton';
 import {useNavigation} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {StackParamList} from '../types/StackParamList';
 import checkUsernameValid from '../utils/CheckUsernameValid';
 import {COLORS} from '../assets/Colors';
+import Friend from '../components/Friend';
 
 const SignUpScreen = () => {
   const [fullName, setFullName] = useState('');
@@ -54,7 +62,7 @@ const SignUpScreen = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.text}>Sign Up</Text>
       <View style={styles.inputContainer}>
         <TextInput
@@ -100,6 +108,7 @@ const SignUpScreen = () => {
           <Text style={styles.errorText}>Invalid email</Text>
         )}
       </View>
+
       <CustomButton
         title="Next"
         onPress={handleScreenChange}
@@ -109,7 +118,7 @@ const SignUpScreen = () => {
         <Text style={styles.loginText}>Already have an account?</Text>
         <Button title="Login" onPress={handleLoginScreen} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

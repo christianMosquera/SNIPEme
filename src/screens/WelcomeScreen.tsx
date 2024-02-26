@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, SafeAreaView} from 'react-native';
 import {Button} from 'react-native-paper';
 import {COLORS} from '../assets/Colors';
 import {useNavigation} from '@react-navigation/native';
@@ -9,7 +9,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 const WelcomeScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.SNIPEme}>SNIPEme</Text>
       <Button
         style={styles.signIn}
@@ -23,7 +23,7 @@ const WelcomeScreen = () => {
         onPress={() => navigation.navigate('SignUp')}>
         <Text style={styles.signUpText}>Sign Up</Text>
       </Button>
-    </View>
+    </SafeAreaView>
   );
 };
 
