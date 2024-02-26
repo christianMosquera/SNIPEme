@@ -1,7 +1,13 @@
-// LoginScreen.js
-
-import React, {useState} from 'react';
-import {View, TextInput, Button, Text, Alert, StyleSheet} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {
+  View,
+  TextInput,
+  Button,
+  Text,
+  Alert,
+  StyleSheet,
+  SafeAreaView,
+} from 'react-native';
 import {signInWithEmailAndPassword} from 'firebase/auth';
 import {FirebaseError} from 'firebase/app';
 import {FIREBASE_AUTH} from '../../firebase';
@@ -15,6 +21,17 @@ const LoginScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [validEmail, setValidEmail] = useState(true);
+  const [validPassword, setValidPassword] = useState(true);
+  const [showLogin, setShowLogin] = useState(false);
+
+  useEffect(() => {
+    if (email && password && validPassword && validEmail) {
+      setShowLogin(true);
+    } else {
+      setShowLogin(false);
+    }
+  }, [email, password, validEmail, validPassword]);
 
   const handleLogin = async () => {
     const auth = FIREBASE_AUTH;
@@ -26,12 +43,23 @@ const LoginScreen = () => {
         switch (error.code) {
           case 'auth/invalid-credential':
             Alert.alert('Sign in failed', 'Email/Password are incorrect');
+            setValidEmail(false);
+            setValidPassword(false);
+            break;
+          case 'auth/invalid-email':
+            Alert.alert('Sign in failed', 'Email/Password are incorrect');
+            setValidEmail(false);
+            setValidPassword(false);
             break;
           case 'auth/missing-email':
             Alert.alert('Sign up failed', 'Please provide an email address');
+            setValidEmail(false);
+            setValidPassword(false);
             break;
           case 'auth/missing-password':
             Alert.alert('Sign up failed', 'Please provide a password');
+            setValidEmail(false);
+            setValidPassword(false);
             break;
           case 'auth/too-many-requests':
             Alert.alert(
@@ -45,25 +73,39 @@ const LoginScreen = () => {
     }
   };
 
+  const handleForgotPassword = () => {
+    navigation.navigate('Reset');
+  };
+
+  const handleEmailChange = (text: string) => {
+    setEmail(text);
+    setValidEmail(true);
+  };
+
+  const handlePasswordChange = (text: string) => {
+    setPassword(text);
+    setValidPassword(true);
+  };
+
   const handleSignUpScreen = () => {
     navigation.pop(1);
     navigation.navigate('SignUp');
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <Text style={styles.text}>Login</Text>
       <View style={styles.inputContainer}>
         <TextInput
           placeholder="Email"
           placeholderTextColor={COLORS.PLACEHOLDER}
           value={email}
-          onChangeText={setEmail}
+          onChangeText={handleEmailChange}
           keyboardType="default"
           autoComplete="off"
           autoCapitalize="none"
           autoCorrect={false}
-          style={styles.textInput}
+          style={[styles.textInput, !validEmail && styles.invalidInput]}
         />
       </View>
       <View style={styles.inputContainer}>
@@ -71,41 +113,22 @@ const LoginScreen = () => {
           placeholder="Password"
           placeholderTextColor={COLORS.PLACEHOLDER}
           value={password}
-          onChangeText={setPassword}
+          onChangeText={handlePasswordChange}
           keyboardType="default"
           autoCapitalize="none"
-          style={styles.textInput}
+          style={[styles.textInput, !validPassword && styles.invalidInput]}
           secureTextEntry
         />
       </View>
-      <CustomButton title="Login" onPress={handleLogin} disabled={false} />
+      <View>
+        <Button title="Forgot Password?" onPress={handleForgotPassword} />
+      </View>
+      <CustomButton title="Login" onPress={handleLogin} disabled={!showLogin} />
       <View style={styles.loginContainer}>
         <Text style={styles.loginText}>Don't have an account?</Text>
         <Button title="Sign up" onPress={handleSignUpScreen} />
       </View>
-    </View>
-    // <View>
-    //   <TextInput
-    //     placeholder="Email"
-    //     value={email}
-    //     onChangeText={setEmail}
-    //     keyboardType="email-address"
-    //     autoCapitalize="none"
-    //   />
-    //   <TextInput
-    //     placeholder="Password"
-    //     value={password}
-    //     onChangeText={setPassword}
-    //     secureTextEntry
-    //   />
-    //   <Button title="Login" onPress={handleLogin} />
-    //   <Text
-    //     onPress={() => {
-    //       navigation.navigate('SignUp');
-    //     }}>
-    //     Create an account
-    //   </Text>
-    // </View>
+    </SafeAreaView>
   );
 };
 

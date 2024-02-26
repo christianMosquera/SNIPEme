@@ -3,4 +3,5 @@ export type StackParamList = {
   Login: undefined;
   SignUp: undefined;
   Password: {name: string; username: string; email: string};
+  Reset: undefined;
 };

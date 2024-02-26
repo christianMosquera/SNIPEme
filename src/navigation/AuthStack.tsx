@@ -12,7 +12,8 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 
 import SignUpScreen from '../screens/SignUpScreen';
 import LoginScreen from '../screens/LoginScreen';
-import InitialScreen from '../screens/WelcomeScreen';
+import WelcomeScreen from '../screens/WelcomeScreen';
+import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import {StackParamList} from '../types/StackParamList';
 import PasswordScreen from '../screens/PasswordScreen';
 import ArrowHeader from '../components/ArrowHeader';
@@ -45,7 +46,7 @@ const AuthStack = () => {
         <Stack.Screen
           name="Welcome"
           options={{headerShown: false}}
-          component={InitialScreen}
+          component={WelcomeScreen}
         />
         <Stack.Screen
           name="Password"
@@ -53,6 +54,13 @@ const AuthStack = () => {
             headerTitle: '',
           }}
           component={PasswordScreen}
+        />
+        <Stack.Screen
+          name="Reset"
+          options={{
+            headerTitle: '',
+          }}
+          component={ForgotPasswordScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
