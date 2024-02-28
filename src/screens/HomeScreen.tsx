@@ -1,64 +1,83 @@
-import React, {useState} from 'react';
-import {View, Text, StyleSheet, SafeAreaView, FlatList} from 'react-native';
-import Post from '../components/Post';
+import React, {useEffect, useState} from 'react';
+import {View, StyleSheet, SafeAreaView, FlatList, RefreshControl} from 'react-native';
+import Post, { ITSnipe } from '../components/Post';
 import TopNav from '../components/TopNav';
+import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore';
+import { FIREBASE_STORE } from '../../firebase';
+import { COLORS } from '../assets/Colors';
 
-const postdata = [
-    {
-        id: 1,
-        username: "Soohwan",
-        snipername: "Ethan",
-        postTime: "9:20PM"
-    },
-    {
-        id: 2,
-        username: "Ethan",
-        snipername: "Soohwan",
-        postTime: "5:22PM"
-    },
-    {
-        id: 3,
-        username: "Emma",
-        snipername: "Braeden",
-        postTime: "1:45PM"
-    },
-    {
-        id: 4,
-        username: "Vyom",
-        snipername: "Chris",
-        postTime: "11:20AM"
-    },
-];
 
 const HomeScreen = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+    const [snipes, setSnipes] = useState<ITSnipe[]>([]);
+    const [isRefreshing, setIsRefreshing] = useState(false);
 
-  return (
-    <View style={styles.container}>
-        <SafeAreaView style={styles.feed} >
-            <FlatList
-                data={postdata}
-                stickyHeaderIndices={[0]}
-                ListHeaderComponent={<TopNav/>}
-                renderItem={({item}) => <Post key={item.id}postData={item}/>}
-            />
-        </SafeAreaView>
-        <View style={styles.bottom}>
-            <View style={styles.buttons}>
-                <Text>Home</Text>
-                <Text>Snipe</Text>
-                <Text>Profile</Text>
-            </View>
+    const fetchSnipes = async () => {
+        setIsRefreshing(true);
+        const q = query(
+            collection(FIREBASE_STORE, "Posts"),
+            orderBy("timestamp", "desc")
+        );
+        const snapshot = await getDocs(q);
+        const postData = [];
+        
+        for (const document of snapshot.docs) {
+            const { approved, image, target_id, sniper_id, timestamp } = document.data();
+            
+            // Get sniper username
+            const sniperDoc = await getDoc(doc(FIREBASE_STORE, "Users", sniper_id));
+            const sniper_username = sniperDoc.exists() ? sniperDoc.data().username : null;
+            
+            // Get target username
+            const targetDoc = await getDoc(doc(FIREBASE_STORE, "Users", target_id));
+            const target_username = targetDoc.exists() ? targetDoc.data().username : null;
+            
+            postData.push({
+                approved,
+                image,
+                timestamp,
+                sniper_id,
+                sniper_username,
+                target_id,
+                target_username,
+                id: document.id
+            });
+        }
+    
+        setSnipes(postData);
+        setIsRefreshing(false);
+    };
+    
+    useEffect(() => {
+        fetchSnipes();
+    }, [])
+
+    return (
+        <View style={styles.container}>
+            <SafeAreaView style={styles.feed} >
+                <FlatList
+                    data={snipes}
+                    stickyHeaderIndices={[0]}
+                    ListHeaderComponent={<TopNav/>}
+                    renderItem={({item}) => <Post key={item.id} snipe={item}/>}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={isRefreshing}
+                            onRefresh={fetchSnipes}
+                            colors={["#ffffff"]}
+                            tintColor={"#ffffff"}
+                        />
+                    }
+                />
+            </SafeAreaView>
         </View>
-    </View>
-  );
+    );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#161c2d",
+        backgroundColor: COLORS.BACKGROUND
+        // backgroundColor: "#562e2e",
     },
     feed: {
         flex: 16,
@@ -66,10 +85,6 @@ const styles = StyleSheet.create({
     text: {
         fontSize: 42,
         color: "white"
-    },
-    bottom: {
-        flex:2,
-        backgroundColor:"#acb5dd",
     },
     buttons: {
         flexDirection:"row",
