@@ -1,8 +1,11 @@
 import { Timestamp } from 'firebase/firestore';
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { Avatar, Button, Card, Icon, IconButton, MD3Colors, Text } from 'react-native-paper';
 import { COLORS } from '../assets/Colors';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { StackParamList } from '../types/StackParamList';
 
 export interface ITSnipe {
     id: string;
@@ -15,29 +18,30 @@ export interface ITSnipe {
     timestamp: Timestamp;
 }
 
-const convertTimestamp = (timestamp : Timestamp) => {
-    const millisecondsAgo = new Date().getTime() - timestamp.toMillis();
-    const minutesAgo = Math.floor(millisecondsAgo / (1000 * 60));
-
-    if (minutesAgo < 1) {
-        return 'Just now';
-    }
-    else if (minutesAgo >= 10080) {
-        return `${Math.floor(((minutesAgo/60)/24)/7)}w`
-    }
-    else if (minutesAgo >= 1440) {
-        return `${Math.floor((minutesAgo/60)/24)}d`
-    }
-    else if (minutesAgo >= 60) {
-        return `${Math.floor(minutesAgo/60)}hr`
-    }
-    else {
-        return `${minutesAgo}m`;
-    }
-};
-
 
 const Post = ({snipe}:{snipe: ITSnipe}) => {
+    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
+    
+    const convertTimestamp = (timestamp : Timestamp) => {
+        const millisecondsAgo = new Date().getTime() - timestamp.toMillis();
+        const minutesAgo = Math.floor(millisecondsAgo / (1000 * 60));
+    
+        if (minutesAgo < 1) {
+            return 'Just now';
+        }
+        else if (minutesAgo >= 10080) {
+            return `${Math.floor(((minutesAgo/60)/24)/7)}w`
+        }
+        else if (minutesAgo >= 1440) {
+            return `${Math.floor((minutesAgo/60)/24)}d`
+        }
+        else if (minutesAgo >= 60) {
+            return `${Math.floor(minutesAgo/60)}hr`
+        }
+        else {
+            return `${minutesAgo}m`;
+        }
+    };
     return (
         <Card style={styles.card}>
             <View>
@@ -51,7 +55,9 @@ const Post = ({snipe}:{snipe: ITSnipe}) => {
                     right={(props) => <IconButton {...props} icon="dots-horizontal" onPress={() => {}} />}
                 />
             </View>
-            <Card.Cover source={{ uri: snipe.image }} style={{height: 435}} />
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('Detail')}>
+                <Card.Cover source={{ uri: snipe.image }} style={{height: 435}} />
+            </TouchableWithoutFeedback>
         </Card>
     )
 };
