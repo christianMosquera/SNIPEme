@@ -23,7 +23,7 @@ const HomeStack = () => {
         headerTransparent: true,
         headerLeft: () => <ArrowHeader />,
     }}
-    initialRouteName="Home">
+    initialRouteName="Main">
     <Stack.Screen
         name='Detail'
         options={{
@@ -32,7 +32,7 @@ const HomeStack = () => {
         component={PostDetail}
     />
     <Stack.Screen
-        name='Home'
+        name='Main'
         options={{headerShown: false}}
         component={HomeScreen}
     />
