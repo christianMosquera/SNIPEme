@@ -2,10 +2,11 @@ import React, {useEffect, useState} from 'react';
 
 import AppStack from './AppStack';
 import AuthStack from './AuthStack';
+import ApprovalScreen from '../screens/ApprovalScreen';
 import {FIREBASE_AUTH, FIREBASE_STORE} from '../../firebase';
 import {User, onAuthStateChanged} from 'firebase/auth';
 import { and, collection, getDocs, query, where } from 'firebase/firestore';
-import { Text } from 'react-native-paper';
+import { Snipe } from '../types/Snipe';
 
 const IndexStack = () => {
   const [user, setUser] = useState<User | null>(null);
@@ -20,7 +21,7 @@ const IndexStack = () => {
   }, []);
 
   // Check if user has unapproved snipes
-  const [unapprovedSnipes, setUnapprovedSnipes] = useState<Array<Object>>([]);
+  const [unapprovedSnipes, setUnapprovedSnipes] = useState<Array<Snipe>>([]);
   useEffect(() => {
     if (!user) return;
 
@@ -35,7 +36,7 @@ const IndexStack = () => {
     // Set state to false if there are no snipes, true otherwise
     getDocs(unapprovedSnipesQuery).then((result) => {
       const resultArray = result.docs.map((doc) => {
-        return {id: doc.id, ...doc.data()};
+        return { id: doc.id, ...doc.data() } as Snipe;
       });
       setUnapprovedSnipes(resultArray);
     });
@@ -43,7 +44,7 @@ const IndexStack = () => {
 
   if (user) {
     if (unapprovedSnipes.length > 0) {
-      return <Text>Not approved</Text>
+      return <ApprovalScreen unapprovedSnipes={unapprovedSnipes} setUnapprovedSnipes={setUnapprovedSnipes} />
     } else {
       return <AppStack />;
     }
