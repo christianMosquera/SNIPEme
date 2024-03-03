@@ -6,5 +6,8 @@ export type Snipe = {
   target_username: string;
   sniper_id: string;
   sniper_username: string;
-  timestamp: string;
+  timestamp: {
+    seconds: number;
+    nanoseconds: number;
+  };
 }
