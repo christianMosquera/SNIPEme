@@ -21,7 +21,7 @@ const PostDetail = ({route, navigation}: {route:any, navigation:any}) => {
     return (
         <SafeAreaView style={styles.container}>
             <Card>
-                <Card.Cover source={{ uri: snipe.image }} style={{height: 455}} />
+                <Card.Cover source={{ uri: snipe.image }} style={{height: 455, borderRadius:0}} />
             </Card>
             <View style={styles.details}>
                 <View style={styles.sniperOptions}>
