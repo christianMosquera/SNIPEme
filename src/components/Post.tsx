@@ -19,9 +19,7 @@ export interface ITSnipe {
 }
 
 
-const Post = ({snipe}:{snipe: ITSnipe}) => {
-    const navigation = useNavigation<NativeStackNavigationProp<StackParamList>>();
-    
+const Post = ({snipe, navigation}:{snipe: ITSnipe, navigation: any}) => {
     const convertTimestamp = (timestamp : Timestamp) => {
         const millisecondsAgo = new Date().getTime() - timestamp.toMillis();
         const minutesAgo = Math.floor(millisecondsAgo / (1000 * 60));
@@ -55,8 +53,8 @@ const Post = ({snipe}:{snipe: ITSnipe}) => {
                     right={(props) => <IconButton {...props} icon="dots-horizontal" onPress={() => {}} />}
                 />
             </View>
-            <TouchableWithoutFeedback onPress={() => navigation.navigate('Detail')}>
-                <Card.Cover source={{ uri: snipe.image }} style={{height: 435}} />
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('Detail', {snipe})}>
+                <Card.Cover source={{ uri: snipe.image }} style={{height: 415}} />
             </TouchableWithoutFeedback>
         </Card>
     )

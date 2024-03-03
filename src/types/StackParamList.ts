@@ -1,3 +1,5 @@
+import { ITSnipe } from "../components/Post";
+
 export type StackParamList = {
   Welcome: undefined;
   Login: undefined;
@@ -5,5 +7,5 @@ export type StackParamList = {
   Password: {name: string; username: string; email: string};
   Reset: undefined;
   Main: undefined;
-  Detail: undefined;
+  Detail: ITSnipe;
 };
