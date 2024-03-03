@@ -21,7 +21,7 @@ const PostDetail = ({route, navigation}: {route:any, navigation:any}) => {
     return (
         <SafeAreaView style={styles.container}>
             <Card>
-                <Card.Cover source={{ uri: snipe.image }} style={{height: 455, borderRadius:0}} />
+                <Card.Cover source={{ uri: snipe.image }} style={{height: 495, borderRadius:0}} />
             </Card>
             <View style={styles.details}>
                 <View style={styles.sniperOptions}>
@@ -31,6 +31,7 @@ const PostDetail = ({route, navigation}: {route:any, navigation:any}) => {
                         buttonColor='white'
                         textColor='black'
                         style={{ borderRadius: 0 }}
+                        
                     >
                     Add Friend</Button>
                 </View>
