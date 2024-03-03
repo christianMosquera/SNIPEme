@@ -20,7 +20,7 @@ const IndexStack = () => {
   }, []);
 
   // Check if user has unapproved snipes
-  const [userHasUnapprovedSnipes, setUserHasUnapprovedSnipes] = useState<Boolean>(false);
+  const [unapprovedSnipes, setUnapprovedSnipes] = useState<Array<Object>>([]);
   useEffect(() => {
     if (!user) return;
 
@@ -31,19 +31,18 @@ const IndexStack = () => {
         where("target_id", "==", user.uid),
         where("approved", "==", false)
       ));
-    const getUnapprovedSnipes = async () => {
-      return await getDocs(unapprovedSnipesQuery);
-    }
 
     // Set state to false if there are no snipes, true otherwise
-    getUnapprovedSnipes().then((result) => {
-      console.log(result.docs.length > 0);
-      setUserHasUnapprovedSnipes(result.docs.length > 0);
+    getDocs(unapprovedSnipesQuery).then((result) => {
+      const resultArray = result.docs.map((doc) => {
+        return {id: doc.id, ...doc.data()};
+      });
+      setUnapprovedSnipes(resultArray);
     });
   }, [user]);
 
   if (user) {
-    if (userHasUnapprovedSnipes == false) {
+    if (unapprovedSnipes.length > 0) {
       return <Text>Not approved</Text>
     } else {
       return <AppStack />;
