@@ -24,6 +24,7 @@ import {
 import {FIREBASE_AUTH, FIREBASE_STORAGE, FIREBASE_STORE} from '../../firebase';
 import {COLORS} from '../assets/Colors';
 import {getDownloadURL, ref} from 'firebase/storage';
+import {modifyFriendsCount} from '../utils/friendsCountUtil';
 
 interface FriendType {
   id: string;
@@ -119,8 +120,10 @@ const AddFriendScreen = () => {
       }
 
       await updateDoc(currentUserDocRef, {friends: arrayUnion(clickedUserId)});
+      await modifyFriendsCount(currentUserId, 1); // Increment the current user's friend count
 
       await updateDoc(clickedUserDocRef, {friends: arrayUnion(currentUserId)});
+      await modifyFriendsCount(clickedUserId, 1); // Increment the clicked user's friend count
     }
   };
 
@@ -140,10 +143,12 @@ const AddFriendScreen = () => {
       await updateDoc(userDocRef, {
         friends: arrayRemove(friend_id),
       });
+      await modifyFriendsCount(current_uid, -1); // Decrement the current user's friend count
 
       await updateDoc(friendDocRef, {
         friends: arrayRemove(current_uid),
       });
+      await modifyFriendsCount(friend_id, -1); // Decrement the unfollowed user's friend count
     }
   };
 
