@@ -15,6 +15,7 @@ import CameraScreen from '../screens/CameraScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import MainScreen from '../screens/MainScreen';
 import HomeStack from './HomeStack';
+import ProfileStackScreen from './ProfileStack';
 
 const Tab = createBottomTabNavigator();
 
@@ -23,12 +24,11 @@ function AppStack(): React.JSX.Element {
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={{
-          headerShown: false, // Hide the header bar
+          headerShown: false,
         }}>
         <Tab.Screen name="Home" component={HomeStack} />
         <Tab.Screen name="Camera" component={CameraScreen} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
-        <Tab.Screen name="Signout" component={MainScreen} />
+        <Tab.Screen name="Profile" component={ProfileStackScreen} />
       </Tab.Navigator>
     </NavigationContainer>
   );
