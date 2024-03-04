@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native'
+import { View, Text, StyleSheet, Image, ImageBackground } from 'react-native'
 import { Button } from 'react-native-paper';
 import { Snipe } from '../types/Snipe';
+import { FIREBASE_STORE } from '../../firebase';
+import { doc, getDoc } from 'firebase/firestore';
 
 type Props = {
   unapprovedSnipes: Array<Snipe>;
@@ -15,16 +17,62 @@ const ApprovalScreen = (props: Props) => {
     setCurrentSnipe(props.unapprovedSnipes.sort((a, b) => a.timestamp.seconds - b.timestamp.seconds)[0]);
   }, [props.unapprovedSnipes]);
 
+  // Keep track of the sniper's name
+  const [sniperName, setSniperName] = useState<string>('');
+  useEffect(() => {
+    // Query the database for the sniper's name
+    const userRef = doc(FIREBASE_STORE, "Users", currentSnipe.sniper_id);
+    getDoc(userRef).then((result) => {
+      if (result.exists()) {
+        setSniperName(result.data().username);
+      }
+    });
+  }, [currentSnipe.sniper_id]);
+
   return (
-  <View style={StyleSheet.absoluteFill}>
-    <Image style={StyleSheet.absoluteFill} source={{ uri: props.unapprovedSnipes[0].image }} />
-    <Button onPress={() => {}} style={{position: 'absolute', bottom: 20, left: 50, alignSelf: 'flex-start', backgroundColor: 'white'}}>
-      <Text style={{color: 'black'}}>Reject</Text>
-    </Button>
-    <Button onPress={() => {props.setUnapprovedSnipes([])}} style={{position: 'absolute', bottom: 20, right: 50, alignSelf: 'flex-end', backgroundColor: 'black'}}>
-      <Text style={{color: 'white'}}>Approve!</Text>
-    </Button>
-  </View>)
+    <View style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerText}>Sniped by {sniperName}</Text>
+        <Text style={{color: 'white', fontSize: 16}}>on {new Date(currentSnipe.timestamp.seconds * 1000).toLocaleString('en-US', { month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</Text>
+      </View>
+      <ImageBackground source={{ uri: currentSnipe.image }} style={styles.image}>
+        <View style={styles.buttonContainer}>
+          <Button onPress={() => {}} style={{backgroundColor: 'white'}}>
+            <Text style={{color: 'black'}}>Reject</Text>
+          </Button>
+          <Button onPress={() => {props.setUnapprovedSnipes([])}} style={{backgroundColor: 'black'}}>
+            <Text style={{color: 'white'}}>Approve!</Text>
+          </Button>
+        </View>
+      </ImageBackground>
+    </View>
+  )
 }
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  header: {
+    padding: 10,
+    backgroundColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
+  headerText: {
+    color: 'white',
+    fontSize: 20,
+  },
+  image: {
+    flex: 1,
+    resizeMode: 'cover',
+    justifyContent: 'flex-end',
+  },
+  buttonContainer: {
+    backgroundColor: 'rgba(100, 100, 100, 0.4)',
+    padding: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+});
 
 export default ApprovalScreen;
