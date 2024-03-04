@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, ImageBackground } from 'react-native'
 import { Button } from 'react-native-paper';
 import { Snipe } from '../types/Snipe';
 import { FIREBASE_STORE } from '../../firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 
 type Props = {
   unapprovedSnipes: Array<Snipe>;
@@ -43,6 +43,20 @@ const ApprovalScreen = (props: Props) => {
     }
   }
 
+  const rejectSnipe = async () => {
+    // Remove the doc from the db
+    const snipeRef = doc(FIREBASE_STORE, "Posts", currentSnipe.id);
+
+    try {
+      await deleteDoc(snipeRef);
+
+      // Remove the snipe from the unapprovedSnipes array
+      props.setUnapprovedSnipes(props.unapprovedSnipes.filter(snipe => snipe.id !== currentSnipe.id));
+    } catch {
+      console.log('Error rejecting snipe');
+    }
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -51,7 +65,7 @@ const ApprovalScreen = (props: Props) => {
       </View>
       <ImageBackground source={{ uri: currentSnipe.image }} style={styles.image}>
         <View style={styles.buttonContainer}>
-          <Button onPress={() => {}} style={{backgroundColor: 'white'}}>
+          <Button onPress={rejectSnipe} style={{backgroundColor: 'white'}}>
             <Text style={{color: 'black'}}>Reject</Text>
           </Button>
           <Button onPress={approveSnipe} style={{backgroundColor: 'black'}}>
