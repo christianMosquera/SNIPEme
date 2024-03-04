@@ -9,6 +9,7 @@ type ProfileHeaderProps = {
   username?: string;
   name?: string;
   streak?: number;
+  friendsCount?: number;
 };
 const isDebugMode = false;
 
@@ -17,6 +18,7 @@ const ProfileHeader = ({
   username,
   name,
   streak,
+  friendsCount,
 }: ProfileHeaderProps) => {
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
@@ -93,13 +95,15 @@ const ProfileHeader = ({
             size={100}
             onPress={() => console.log('Friends Icon Pressed')}
           />
-          <TouchableOpacity
-            style={styles.touchable}
-            onPress={() => console.log('Friends Number Text Button Pressed')}>
-            <Text style={styles.text} variant="titleMedium">
-              46
-            </Text>
-          </TouchableOpacity>
+          {typeof friendsCount === 'number' && (
+            <TouchableOpacity
+              style={styles.touchable}
+              onPress={() => console.log('Friends Number Text Button Pressed')}>
+              <Text style={styles.text} variant="titleMedium">
+                {friendsCount}
+              </Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.touchable}
             onPress={() => console.log('Friends Text Button Pressed')}>

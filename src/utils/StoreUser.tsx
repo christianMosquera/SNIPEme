@@ -19,6 +19,7 @@ const storeUserInFirestore = async (
       name,
       avatar_url: null,
       streak: 0,
+      friendsCount: 0,
     });
   } catch (error) {
     console.error('Error storing user in Firestore:', error);

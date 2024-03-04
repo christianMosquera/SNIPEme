@@ -7,7 +7,7 @@ import getUserData from '../utils/getUserData';
 
 const ProfileScreen = () => {
   const fieldsToFetch = useMemo(
-    () => ['name', 'avatar_url', 'username', 'streak'],
+    () => ['name', 'avatar_url', 'username', 'streak', 'friendsCount'],
     [],
   );
   const {userData, loading} = getUserData(fieldsToFetch);
@@ -28,6 +28,7 @@ const ProfileScreen = () => {
           username={userData.username}
           name={userData.name}
           streak={userData.streak}
+          friendsCount={userData.friendsCount}
         />
       )}
       <ProfileFeed></ProfileFeed>
