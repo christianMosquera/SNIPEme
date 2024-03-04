@@ -13,7 +13,6 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {StackParamList} from '../types/StackParamList';
 import checkUsernameValid from '../utils/CheckUsernameValid';
 import {COLORS} from '../assets/Colors';
-import Friend from '../components/Friend';
 
 const SignUpScreen = () => {
   const [fullName, setFullName] = useState('');
@@ -114,6 +113,7 @@ const SignUpScreen = () => {
         onPress={handleScreenChange}
         disabled={!showNext}
       />
+
       <View style={styles.loginContainer}>
         <Text style={styles.loginText}>Already have an account?</Text>
         <Button title="Login" onPress={handleLoginScreen} />

@@ -3,11 +3,16 @@
 import React, {useState} from 'react';
 import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import {Text, Avatar, Button, IconButton, Switch} from 'react-native-paper';
+import {ProfileStackParamList} from '../types/ProfileStackParamList';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {useNavigation} from '@react-navigation/native';
 
 type Props = {};
 const isDebugMode = false;
 
 const ProfileHeader = (props: Props) => {
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
@@ -26,7 +31,7 @@ const ProfileHeader = (props: Props) => {
           icon="cog"
           iconColor="white"
           size={30}
-          onPress={() => console.log('Settings Icon Pressed')}
+          onPress={() => navigation.navigate('Settings')}
         />
       </View>
       <View style={styles.middleContainer}>
@@ -74,7 +79,7 @@ const ProfileHeader = (props: Props) => {
             icon="target-account"
             iconColor="white"
             size={100}
-            onPress={() => console.log('Friends Icon Pressed')}
+            onPress={() => navigation.navigate('Friends')}
           />
           <TouchableOpacity
             style={styles.touchable}
