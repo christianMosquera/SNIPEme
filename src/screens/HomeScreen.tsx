@@ -7,7 +7,7 @@ import { FIREBASE_STORE } from '../../firebase';
 import { COLORS } from '../assets/Colors';
 
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}:any) => {
     const [snipes, setSnipes] = useState<ITSnipe[]>([]);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
@@ -58,7 +58,7 @@ const HomeScreen = () => {
                     data={snipes}
                     stickyHeaderIndices={[0]}
                     ListHeaderComponent={<TopNav/>}
-                    renderItem={({item}) => <Post key={item.id} snipe={item}/>}
+                    renderItem={({item}) => <Post key={item.id} snipe={item} navigation={navigation}/>}
                     refreshControl={
                         <RefreshControl
                             refreshing={isRefreshing}
@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
     },
     feed: {
         flex: 16,
+        marginHorizontal:12
     },
     text: {
         fontSize: 42,

@@ -1,6 +1,6 @@
 // ProfileScreen.tsx
 import React, {useMemo} from 'react';
-import {StyleSheet, SafeAreaView, ActivityIndicator} from 'react-native';
+import {SafeAreaView, StyleSheet, View, ActivityIndicator} from 'react-native';
 import ProfileHeader from '../components/ProfileHeader';
 import ProfileFeed from '../components/ProfileFeed';
 import getUserData from '../utils/getUserData';
