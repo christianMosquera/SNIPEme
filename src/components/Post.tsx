@@ -1,4 +1,4 @@
-import { Timestamp } from 'firebase/firestore';
+import {Timestamp} from 'firebase/firestore';
 import * as React from 'react';
 import { StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { Avatar, Button, Card, Icon, IconButton, MD3Colors, Text } from 'react-native-paper';
@@ -7,17 +7,17 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { StackParamList } from '../types/StackParamList';
 
-export interface ITSnipe {
-    id: string;
-    approved: boolean;
-    image: string;
-    target_id: string;
-    target_username: string;
-    sniper_id: string;
-    sniper_username: string;
-    timestamp: Timestamp;
-}
 
+export interface ITSnipe {
+  id: string;
+  approved: boolean;
+  image: string;
+  target_id: string;
+  target_username: string;
+  sniper_id: string;
+  sniper_username: string;
+  timestamp: Timestamp;
+}
 
 const Post = ({snipe, navigation}:{snipe: ITSnipe, navigation: any}) => {
     const convertTimestamp = (timestamp : Timestamp) => {
@@ -61,14 +61,14 @@ const Post = ({snipe, navigation}:{snipe: ITSnipe, navigation: any}) => {
 };
 
 const styles = StyleSheet.create({
-    card: {
-        // backgroundColor: '#562e2e',
-        backgroundColor: COLORS.BACKGROUND,
-        marginVertical: 8,
-    },
-    title: {
-        color: "white"
-    },
-  });
+  card: {
+    // backgroundColor: '#562e2e',
+    backgroundColor: COLORS.BACKGROUND,
+    marginVertical: 8,
+  },
+  title: {
+    color: 'white',
+  },
+});
 
 export default Post;

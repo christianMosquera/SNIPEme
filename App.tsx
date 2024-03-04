@@ -8,11 +8,14 @@
 import React from 'react';
 import IndexStack from './src/navigation/IndexStack';
 import {PaperProvider} from 'react-native-paper';
+import {UserProvider} from './src/contexts/UserContext';
 
 function App(): React.JSX.Element {
   return (
     <PaperProvider>
-      <IndexStack />
+      <UserProvider>
+        <IndexStack />
+      </UserProvider>
     </PaperProvider>
   );
 }
