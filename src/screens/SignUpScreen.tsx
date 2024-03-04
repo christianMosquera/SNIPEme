@@ -13,7 +13,7 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {StackParamList} from '../types/StackParamList';
 import checkUsernameValid from '../utils/CheckUsernameValid';
 import {COLORS} from '../assets/Colors';
-import Friend from '../components/Friend';
+// import Friend from '../components/Friend';
 
 const SignUpScreen = () => {
   const [fullName, setFullName] = useState('');

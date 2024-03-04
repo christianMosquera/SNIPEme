@@ -1,24 +1,34 @@
 // ProfileHeader.tsx
 
 import React, {useState} from 'react';
-import {StyleSheet, View, TouchableOpacity} from 'react-native';
+import {StyleSheet, View, SafeAreaView, TouchableOpacity} from 'react-native';
 import {Text, Avatar, Button, IconButton, Switch} from 'react-native-paper';
 
-type Props = {};
+type ProfileHeaderProps = {
+  avatarUrl: string | null;
+  username?: string;
+  name?: string;
+  streak?: number;
+};
 const isDebugMode = false;
 
-const ProfileHeader = (props: Props) => {
+const ProfileHeader = ({
+  avatarUrl,
+  username,
+  name,
+  streak,
+}: ProfileHeaderProps) => {
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
   return (
-    <View style={styles.headerContainer}>
+    <SafeAreaView style={styles.headerContainer}>
       <View style={styles.topContainer}>
         <TouchableOpacity
           style={styles.touchable}
           onPress={() => console.log('Username Text Button Pressed')}>
           <Text style={styles.text} variant="titleMedium">
-            username
+            {username}
           </Text>
         </TouchableOpacity>
         <IconButton
@@ -38,13 +48,15 @@ const ProfileHeader = (props: Props) => {
             size={100}
             onPress={() => console.log('Streak Icon Pressed')}
           />
-          <TouchableOpacity
-            style={styles.touchable}
-            onPress={() => console.log('Streak Number Text Button Pressed')}>
-            <Text style={styles.text} variant="titleMedium">
-              32
-            </Text>
-          </TouchableOpacity>
+          {typeof streak === 'number' && (
+            <TouchableOpacity
+              style={styles.touchable}
+              onPress={() => console.log('Streak Number Text Button Pressed')}>
+              <Text style={styles.text} variant="titleMedium">
+                {streak}
+              </Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             style={styles.touchable}
             onPress={() => console.log('Streak Text Button Pressed')}>
@@ -54,17 +66,22 @@ const ProfileHeader = (props: Props) => {
           </TouchableOpacity>
         </View>
         <View style={styles.nameContainer}>
-          <Avatar.Icon
-            style={styles.avatar}
-            size={110}
-            color="white"
-            icon="account"
-          />
+          {/* Conditionally render Avatar or Avatar.Icon */}
+          {avatarUrl ? (
+            <Avatar.Image source={{uri: avatarUrl}} size={110} />
+          ) : (
+            <Avatar.Icon
+              style={styles.avatar}
+              size={110}
+              color="white"
+              icon="account"
+            />
+          )}
           <TouchableOpacity
             style={styles.touchable}
             onPress={() => console.log('Name Text Button Pressed')}>
             <Text style={styles.name} variant="titleMedium">
-              Name
+              {name}
             </Text>
           </TouchableOpacity>
         </View>
@@ -98,7 +115,7 @@ const ProfileHeader = (props: Props) => {
         </Text>
         <Switch color="red" value={isSwitchOn} onValueChange={onToggleSwitch} />
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
