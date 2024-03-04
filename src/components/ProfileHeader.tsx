@@ -23,7 +23,6 @@ const ProfileHeader = ({
   streak,
   friendsCount,
 }: ProfileHeaderProps) => {
-const ProfileHeader = (props: Props) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
