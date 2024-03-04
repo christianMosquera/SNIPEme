@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, Image, ImageBackground } from 'react-native'
 import { Button } from 'react-native-paper';
 import { Snipe } from '../types/Snipe';
 import { FIREBASE_STORE } from '../../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, updateDoc } from 'firebase/firestore';
 
 type Props = {
   unapprovedSnipes: Array<Snipe>;
@@ -29,10 +29,24 @@ const ApprovalScreen = (props: Props) => {
     });
   }, [currentSnipe.sniper_id]);
 
+  const approveSnipe = async () => {
+    // Set approved to true in the db
+    const snipeRef = doc(FIREBASE_STORE, "Posts", currentSnipe.id);
+
+    try {
+      await updateDoc(snipeRef, { approved: true });
+
+      // Remove the snipe from the unapprovedSnipes array
+      props.setUnapprovedSnipes(props.unapprovedSnipes.filter(snipe => snipe.id !== currentSnipe.id));
+    } catch {
+      console.log('Error approving snipe');
+    }
+  }
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.headerText}>Sniped by {sniperName}</Text>
+        <Text style={styles.headerText}>Sniped by {sniperName}!</Text>
         <Text style={{color: 'white', fontSize: 16}}>on {new Date(currentSnipe.timestamp.seconds * 1000).toLocaleString('en-US', { month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</Text>
       </View>
       <ImageBackground source={{ uri: currentSnipe.image }} style={styles.image}>
@@ -40,7 +54,7 @@ const ApprovalScreen = (props: Props) => {
           <Button onPress={() => {}} style={{backgroundColor: 'white'}}>
             <Text style={{color: 'black'}}>Reject</Text>
           </Button>
-          <Button onPress={() => {props.setUnapprovedSnipes([])}} style={{backgroundColor: 'black'}}>
+          <Button onPress={approveSnipe} style={{backgroundColor: 'black'}}>
             <Text style={{color: 'white'}}>Approve!</Text>
           </Button>
         </View>
