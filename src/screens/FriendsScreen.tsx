@@ -20,6 +20,7 @@ import {
 } from 'firebase/firestore';
 import {getDownloadURL, ref} from 'firebase/storage';
 import {COLORS} from '../assets/Colors';
+import {modifyFriendsCount} from '../utils/friendsCountUtil';
 
 interface FriendType {
   id: string;
@@ -100,10 +101,12 @@ const FriendsScreen = () => {
       await updateDoc(userDocRef, {
         friends: arrayRemove(friend_id),
       });
+      await modifyFriendsCount(friend_id, -1);
 
       await updateDoc(friendDocRef, {
         friends: arrayRemove(current_uid),
       });
+      await modifyFriendsCount(current_uid, -1);
     }
   };
 
