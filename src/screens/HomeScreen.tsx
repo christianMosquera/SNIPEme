@@ -25,11 +25,15 @@ const HomeScreen = ({navigation}:any) => {
             
             // Get sniper username
             const sniperDoc = await getDoc(doc(FIREBASE_STORE, "Users", sniper_id));
-            const sniper_username = sniperDoc.exists() ? sniperDoc.data().username : null;
+            const sniperData = sniperDoc.exists() ? sniperDoc.data() : null;
+            const sniper_username = sniperData ? sniperData.username : null;
+            const sniper_avatar_url = sniperData ? sniperData.avatar_url : null;
             
             // Get target username
             const targetDoc = await getDoc(doc(FIREBASE_STORE, "Users", target_id));
-            const target_username = targetDoc.exists() ? targetDoc.data().username : null;
+            const targetData = targetDoc.exists() ? targetDoc.data() : null;
+            const target_username = targetData ? targetData.username : null;
+            const target_avatar_url = targetData ? targetData.avatar_url : null;
             
             postData.push({
                 approved,
@@ -37,8 +41,10 @@ const HomeScreen = ({navigation}:any) => {
                 timestamp,
                 sniper_id,
                 sniper_username,
+                sniper_avatar_url,
                 target_id,
                 target_username,
+                target_avatar_url,
                 id: document.id
             });
         }
