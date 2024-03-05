@@ -1,6 +1,6 @@
 import { Timestamp } from 'firebase/firestore';
 import * as React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Avatar, Button, Card, Icon, IconButton, MD3Colors, Text } from 'react-native-paper';
 import { COLORS } from '../assets/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -30,8 +30,6 @@ const PostDetail = ({route, navigation}: {route:any, navigation:any}) => {
                         mode='contained'
                         buttonColor='white'
                         textColor='black'
-                        style={{ borderRadius: 0 }}
-                        
                     >
                     Add Friend</Button>
                 </View>
