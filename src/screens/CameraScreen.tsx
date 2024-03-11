@@ -113,7 +113,7 @@ const CameraScreen = () => {
       approved: false,
       sniper_id: currentUser.uid,
       target_id: currentTarget,
-      photo: filePath,
+      image: filePath,
       timestamp: new Date()
     };
     await setDoc(snipeRef, snipeData).then(() => {
