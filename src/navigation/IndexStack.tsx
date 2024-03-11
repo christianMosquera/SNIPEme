@@ -42,7 +42,7 @@ const IndexStack = () => {
       for (let i = 0; i < resultArray.length; i++) {
         const sniperRef = ref(FIREBASE_STORAGE, resultArray[i].image);
         const url = await getDownloadURL(sniperRef);
-        resultArray[i].image = url;
+        resultArray[i].image_url = url;
       }
       setUnapprovedSnipes(resultArray);
     });
