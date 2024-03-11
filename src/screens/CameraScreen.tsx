@@ -83,7 +83,18 @@ const CameraScreen = () => {
       return;
     }
 
-    const storageRef = ref(FIREBASE_STORAGE, 'snipes/' + currentUser.uid + '/' + Date.now() + '.jpg');
+    // Check if there was already a post today
+    const today = new Date();
+    const date = today.getFullYear() * 10000 + today.getMonth() * 100 + today.getDate();
+    const q = doc(FIREBASE_STORE, "Posts", currentUser.uid + date);
+    const snapshot = await getDoc(q);
+    if (snapshot.exists()) {
+      console.log('Already posted today');
+      setPhotoPath(null);
+      return;
+    }
+
+    const storageRef = ref(FIREBASE_STORAGE, 'snipes/' + currentUser.uid + '/' + date + '.jpg');
     
     // Read file data from path
     const blob = await fetch('file://' + photoPath).then( response => {
@@ -108,7 +119,7 @@ const CameraScreen = () => {
     }
 
     // Create a new snipe in the database
-    const snipeRef = doc(FIREBASE_STORE, "Posts", currentUser.uid + Date.now());
+    const snipeRef = doc(FIREBASE_STORE, "Posts", currentUser.uid + date);
     const snipeData = {
       approved: false,
       sniper_id: currentUser.uid,
