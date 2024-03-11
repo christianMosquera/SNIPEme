@@ -121,6 +121,8 @@ const CameraScreen = () => {
     }, error => {
       console.error('Error adding snipe to database', error);
     })
+
+    setPhotoPath(null);
   }
 
   if (hasPermission) {
