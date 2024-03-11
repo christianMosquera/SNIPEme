@@ -1,10 +1,17 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, Text, StyleSheet, AppState, AppStateStatus, Image } from 'react-native'
 import { useIsFocused } from '@react-navigation/native';
 import { Camera, useCameraDevice, useCameraPermission } from 'react-native-vision-camera'
 import { Button } from 'react-native-paper';
+import { ref, uploadBytes } from 'firebase/storage';
+import { FIREBASE_STORAGE, FIREBASE_STORE } from '../../firebase';
+import { UserContext } from '../contexts/UserContext';
+import { User } from 'firebase/auth';
+import { doc, getDoc, setDoc } from 'firebase/firestore';
 
 const CameraScreen = () => {
+  const currentUser = useContext(UserContext) as User | null;
+
   // Handle app state
   const [appState, setAppState] = useState(AppState.currentState)
   useEffect(() => {
@@ -55,6 +62,67 @@ const CameraScreen = () => {
     setPhotoPath(photo?.path ?? null)
   }
 
+  // Handle target
+  const [currentTarget, setCurrentTarget] = useState<string | null>(null)
+  useEffect(() => {
+    if (!currentUser) return;
+
+    // Query the database for the sniper's name
+    const targetRef = doc(FIREBASE_STORE, "Targets", currentUser.uid);
+    getDoc(targetRef).then((result) => {
+      if (result.exists()) {
+        setCurrentTarget(result.data().target_id);
+      }
+    });
+  }, [currentUser]);
+
+  // Handle posting
+  async function postPhoto() {
+    if (!photoPath || !currentUser || !currentTarget) {
+      console.log('Failed to post: No photo or user not loaded');
+      return;
+    }
+
+    const storageRef = ref(FIREBASE_STORAGE, 'snipes/' + currentUser.uid + '/' + Date.now() + '.jpg');
+    
+    // Read file data from path
+    const blob = await fetch('file://' + photoPath).then( response => {
+      return response.blob();
+    }, error => {
+      console.log(error); 
+    });
+
+    if (blob == null) {
+      console.log("Failed to read file data from path");
+      return;
+    }
+
+    // Upload file data
+    const filePath = "gs://snipeme-22003.appspot.com/" + await uploadBytes(storageRef, blob).then((snapshot) => {
+      return snapshot.metadata.fullPath;
+    })
+
+    if (!filePath) {
+      console.log('Failed to upload file');
+      return;
+    }
+
+    // Create a new snipe in the database
+    const snipeRef = doc(FIREBASE_STORE, "Posts", currentUser.uid + Date.now());
+    const snipeData = {
+      approved: false,
+      sniper_id: currentUser.uid,
+      target_id: currentTarget,
+      photo: filePath,
+      timestamp: new Date()
+    };
+    await setDoc(snipeRef, snipeData).then(() => {
+      console.log('Snipe added to database: ' + filePath);
+    }, error => {
+      console.error('Error adding snipe to database', error);
+    })
+  }
+
   if (hasPermission) {
     if (photoPath) {
       return (<View style={StyleSheet.absoluteFill}>
@@ -62,7 +130,7 @@ const CameraScreen = () => {
         <Button onPress={() => setPhotoPath(null)} style={{position: 'absolute', bottom: 20, left: 50, alignSelf: 'flex-start', backgroundColor: 'white'}}>
           <Text style={{color: 'black'}}>Retake</Text>
         </Button>
-        <Button onPress={() => {console.log("post!")}} style={{position: 'absolute', bottom: 20, right: 50, alignSelf: 'flex-end', backgroundColor: 'black'}}>
+        <Button onPress={postPhoto} style={{position: 'absolute', bottom: 20, right: 50, alignSelf: 'flex-end', backgroundColor: 'black'}}>
           <Text style={{color: 'white'}}>Post!</Text>
         </Button>
       </View>)
