@@ -2,9 +2,10 @@ import React, {useEffect, useState} from 'react';
 import {View, StyleSheet, SafeAreaView, FlatList, RefreshControl} from 'react-native';
 import Post, { ITSnipe } from '../components/Post';
 import TopNav from '../components/TopNav';
-import { collection, doc, getDoc, getDocs, orderBy, query } from 'firebase/firestore';
-import { FIREBASE_STORE } from '../../firebase';
+import { collection, doc, getDoc, getDocs, orderBy, query, where } from 'firebase/firestore';
+import { FIREBASE_STORAGE, FIREBASE_STORE } from '../../firebase';
 import { COLORS } from '../assets/Colors';
+import { getDownloadURL, ref } from 'firebase/storage';
 
 
 const HomeScreen = ({navigation}:any) => {
@@ -15,7 +16,8 @@ const HomeScreen = ({navigation}:any) => {
         setIsRefreshing(true);
         const q = query(
             collection(FIREBASE_STORE, "Posts"),
-            orderBy("timestamp", "desc")
+            orderBy("timestamp", "desc"),
+            where("approved", "==", true)
         );
         const snapshot = await getDocs(q);
         const postData = [];
@@ -30,10 +32,14 @@ const HomeScreen = ({navigation}:any) => {
             // Get target username
             const targetDoc = await getDoc(doc(FIREBASE_STORE, "Users", target_id));
             const target_username = targetDoc.exists() ? targetDoc.data().username : null;
+
+            // Get snipe image url
+            const storageRef = ref(FIREBASE_STORAGE, image);
+            const image_url = await getDownloadURL(storageRef);
             
             postData.push({
                 approved,
-                image,
+                image: image_url,
                 timestamp,
                 sniper_id,
                 sniper_username,
