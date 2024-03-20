@@ -88,7 +88,8 @@ const styles = StyleSheet.create({
   card: {
     // backgroundColor: '#562e2e',
     backgroundColor: COLORS.BACKGROUND,
-    marginVertical: 8,
+    marginTop: 8,
+    marginBottom: 16
   },
   title: {
     color: 'white',

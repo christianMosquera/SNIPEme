@@ -4,7 +4,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Avatar, Button, Card, Icon, IconButton, MD3Colors, Text } from 'react-native-paper';
 import { COLORS } from '../assets/Colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { white } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
+
 
 
 

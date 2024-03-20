@@ -88,7 +88,7 @@ const HomeScreen = ({navigation}:any) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: COLORS.BACKGROUND
+        backgroundColor: COLORS.BACKGROUND,
         // backgroundColor: "#562e2e",
     },
     feed: {
