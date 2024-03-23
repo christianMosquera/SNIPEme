@@ -3,6 +3,7 @@ export type SnipeCache = {
     approved: boolean,
     sniper_id: string,
     target_id: string,
+    image_ref: string,
     image_url: string,
     image_blob: Blob,
     timestamp: number,
