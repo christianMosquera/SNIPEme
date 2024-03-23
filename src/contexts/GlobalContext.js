@@ -22,6 +22,10 @@ export const GlobalProvider = ({children}) => {
   useEffect(() => {
     const auth = getAuth(); // Get the Firebase Auth instance
     const unsubscribe = onAuthStateChanged(auth, user => {
+      setUserData(null); // Reset user data on logout
+      setCurrentTarget(null); // Reset current target on logout
+      setFriendsCache(null); // Reset friends cache on logout
+      setSnipesCache(null); // Reset snipes cache on logout
       setAuthData(user);
     });
 
