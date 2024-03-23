@@ -1,3 +1,5 @@
+import { Timestamp } from "firebase/firestore"
+
 export type SnipeCache = {
   [id: string]: {
     approved: boolean,
@@ -6,6 +8,6 @@ export type SnipeCache = {
     image_ref: string,
     image_url: string,
     image_blob: Blob,
-    timestamp: number,
+    timestamp: Timestamp,
   }
 }
