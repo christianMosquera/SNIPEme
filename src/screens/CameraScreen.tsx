@@ -5,12 +5,13 @@ import { Camera, useCameraDevice, useCameraPermission } from 'react-native-visio
 import { Button } from 'react-native-paper';
 import { ref, uploadBytes } from 'firebase/storage';
 import { FIREBASE_STORAGE, FIREBASE_STORE } from '../../firebase';
-import { UserContext } from '../contexts/UserContext';
-import { User } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { GlobalContext } from '../contexts/GlobalContext';
+import { GlobalContextType } from '../types/GlobalContextType';
 
 const CameraScreen = () => {
-  const currentUser = useContext(UserContext) as User | null;
+  const globalContext = useContext(GlobalContext) as unknown as GlobalContextType;
+  const currentUser = globalContext.authData;
 
   // Handle app state
   const [appState, setAppState] = useState(AppState.currentState)

@@ -2,8 +2,8 @@ import {useContext, useState, useEffect} from 'react';
 import {doc, onSnapshot} from 'firebase/firestore';
 import {getDownloadURL, ref} from 'firebase/storage';
 import {FIREBASE_STORE, FIREBASE_STORAGE} from '../../firebase';
-import {UserContext} from '../contexts/UserContext';
-import {User} from 'firebase/auth';
+import {useGlobalState} from '../contexts/GlobalContext';
+import { GlobalContextType } from '../types/GlobalContextType';
 
 type UserData = {
   [key: string]: any; // This allows dynamic access with string keys
@@ -24,7 +24,8 @@ const getImageUrl = async (avatar_url: string) => {
 const getUserData = (fieldsToFetch?: string[]) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
-  const currentUser = useContext(UserContext) as User | null;
+  const globalContext = useGlobalState() as unknown as GlobalContextType;
+  const currentUser = globalContext.authData;
 
   useEffect(() => {
     if (!currentUser) {

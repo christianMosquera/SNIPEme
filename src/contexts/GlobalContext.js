@@ -1,12 +1,26 @@
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { createContext, useContext, useEffect, useState } from "react";
+
 export const GlobalContext = createContext(null);
 
 export const GlobalProvider = ({children}) => {
-  const [globalState, setGlobalState] = useState({});
+  const [globalState, setGlobalState] = useState({
+    authData: null,
+    userData: null,
+    friendsCache: null,
+    snipesCache: null,
+  });
 
   useEffect(() => {
-    // Fetch global data here
-    // For example, you could fetch the current user from Firebase Auth
-    // and store it in global state
+    const auth = getAuth(); // Get the Firebase Auth instance
+    const unsubscribe = onAuthStateChanged(auth, user => {
+      setGlobalState({
+        ...globalState,
+        authData: user,
+      });
+    });
+
+    return () => unsubscribe(); // Cleanup on unmount
   }, []);
 
   return (
