@@ -10,12 +10,12 @@ export const GlobalProvider = ({children}) => {
   const [authData, setAuthData] = useState(null);
   const [userData, setUserData] = useState(null);
   const [currentTarget, setCurrentTarget] = useState(null);
-  const [friendsCache, setFriendsCache] = useState(null);
+  const [usersCache, setUsersCache] = useState(null);
   const [snipesCache, setSnipesCache] = useState(null);
   const globalState = {
     authData,
     userData: {...userData, currentTarget},
-    friendsCache,
+    usersCache,
     snipesCache,
   };
 
@@ -24,7 +24,7 @@ export const GlobalProvider = ({children}) => {
     const unsubscribe = onAuthStateChanged(auth, user => {
       setUserData(null); // Reset user data on logout
       setCurrentTarget(null); // Reset current target on logout
-      setFriendsCache(null); // Reset friends cache on logout
+      setUsersCache(null); // Reset friends cache on logout
       setSnipesCache(null); // Reset snipes cache on logout
       setAuthData(user);
     });
@@ -81,7 +81,7 @@ export const GlobalProvider = ({children}) => {
       if (friendsResult.exists()) {
         const friendsArray = friendsResult.data().friends;
         for (let i = 0; i < friendsArray.length; i++) {
-          if (friendsCache && friendsCache[friendsArray[i]]) continue; // Friend is already cached
+          if (usersCache && usersCache[friendsArray[i]]) continue; // Friend is already cached
 
           const friendRef = doc(FIREBASE_STORE, "Users", friendsArray[i]);
           getDoc(friendRef).then((friendResult) => {
@@ -91,9 +91,10 @@ export const GlobalProvider = ({children}) => {
               // Query the database for the user's avatar
               const avatarRef = ref(FIREBASE_STORAGE, avatar_ref);
               getDownloadURL(avatarRef).then((avatar_url) => {
-                setFriendsCache((prev) => ({
+                setUsersCache((prev) => ({
                   ...prev,
                   [friendsArray[i]]: {
+                    friend: true,
                     username: friendData.username,
                     name: friendData.name,
                     avatar_ref,
