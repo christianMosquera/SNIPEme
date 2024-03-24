@@ -81,30 +81,7 @@ export const GlobalProvider = ({children}) => {
       if (friendsResult.exists()) {
         const friendsArray = friendsResult.data().friends;
         for (let i = 0; i < friendsArray.length; i++) {
-          if (usersCache && usersCache[friendsArray[i]]) continue; // Friend is already cached
-
-          const friendRef = doc(FIREBASE_STORE, "Users", friendsArray[i]);
-          getDoc(friendRef).then((friendResult) => {
-            if (friendResult.exists()) {
-              const friendData = friendResult.data();
-              const avatar_ref = friendData.avatar_url;
-              // Query the database for the user's avatar
-              const avatarRef = ref(FIREBASE_STORAGE, avatar_ref);
-              getDownloadURL(avatarRef).then((avatar_url) => {
-                setUsersCache((prev) => ({
-                  ...prev,
-                  [friendsArray[i]]: {
-                    friend: true,
-                    username: friendData.username,
-                    name: friendData.name,
-                    avatar_ref,
-                    avatar_url,
-                    avatar_blob: null // For now
-                  }
-                }));
-              });
-            }
-          });
+          addUser(friendsArray[i], true);
         }
       }
     });
@@ -138,9 +115,39 @@ export const GlobalProvider = ({children}) => {
             }
           }));
         });
+
+        // Add sniper to cache if needed
+        addUser(docData.sniper_id, false);
       }
     });
   }, [authData]);
+
+  function addUser(uid, friend) {
+    if (usersCache && usersCache[uid]) return; // User is already cached
+
+    const userRef = doc(FIREBASE_STORE, "Users", uid);
+    getDoc(userRef).then((result) => {
+      if (result.exists()) {
+        const userData = result.data();
+        const avatar_ref = userData.avatar_url;
+        // Query the database for the user's avatar
+        const avatarRef = ref(FIREBASE_STORAGE, avatar_ref);
+        getDownloadURL(avatarRef).then((avatar_url) => {
+          setUsersCache((prev) => ({
+            ...prev,
+            [uid]: {
+              friend,
+              username: userData.username,
+              name: userData.name,
+              avatar_ref,
+              avatar_url,
+              avatar_blob: null // For now
+            }
+          }));
+        });
+      }
+    });
+  }
 
   return (
     <GlobalContext.Provider value={globalState}>{children}</GlobalContext.Provider>
