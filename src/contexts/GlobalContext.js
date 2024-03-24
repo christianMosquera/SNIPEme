@@ -1,6 +1,6 @@
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { FIREBASE_STORAGE, FIREBASE_STORE } from '../../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, collection, query, getDoc, getDocs } from 'firebase/firestore';
 import { ref, getDownloadURL } from 'firebase/storage';
 import { createContext, useContext, useEffect, useState } from "react";
 
@@ -105,6 +105,38 @@ export const GlobalProvider = ({children}) => {
             }
           });
         }
+      }
+    });
+  }, [authData]);
+
+  useEffect(() => {
+    if (!authData) return; // No user is logged in
+
+    // Query the database for the user's snipes
+    const postsRef = collection(FIREBASE_STORE, "Posts");
+    const snipesQuery = query(postsRef);
+    getDocs(snipesQuery).then((snipesResult) => {
+      const snipesArray = snipesResult.docs;
+      for (let i = 0; i < snipesArray.length; i++) {
+        if (snipesCache && snipesCache[snipesArray[i].id]) continue; // Snipe is already cached
+
+        // Get snipe image url
+        const docData = snipesArray[i].data();
+        const imageRef = ref(FIREBASE_STORAGE, docData.image);
+        getDownloadURL(imageRef).then((image_url) => {
+          setSnipesCache((prev) => ({
+            ...prev,
+            [snipesArray[i].id]: {
+              approved: docData.approved,
+              sniper_id: docData.sniper_id,
+              target_id: docData.target_id,
+              image_ref: docData.image,
+              image_url,
+              image_blob: null, // for now
+              timestamp: docData.timestamp,
+            }
+          }));
+        });
       }
     });
   }, [authData]);
