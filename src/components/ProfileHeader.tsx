@@ -1,11 +1,24 @@
 // ProfileHeader.tsx
 
-import React, {useState} from 'react';
+import React from 'react';
 import {StyleSheet, View, SafeAreaView, TouchableOpacity} from 'react-native';
-import {Text, Avatar, Button, IconButton, Switch} from 'react-native-paper';
+import {Text, Avatar, IconButton, Switch} from 'react-native-paper';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
+import {doc, updateDoc} from 'firebase/firestore';
+import {FIREBASE_STORE} from '../../firebase';
+import {useCurrentUser} from '../contexts/UserContext'; // Adjust the path as necessary
+
+// At the start of ProfileHeader component
+// const [isSwitchOn, setIsSwitchOn] = React.useState(false);
+
+// React.useEffect(() => {
+//   if (userData?.isSnipingEnabled !== undefined) {
+//     setIsSwitchOn(userData.isSnipingEnabled);
+//   }
+// }, [userData?.isSnipingEnabled]); // Make sure to pass userData as a prop to ProfileHeader from ProfileScreen
+
 
 type ProfileHeaderProps = {
   avatarUrl: string | null;
@@ -13,6 +26,7 @@ type ProfileHeaderProps = {
   name?: string;
   streak?: number;
   friendsCount?: number;
+  isSnipingEnabled?: boolean;
 };
 const isDebugMode = false;
 
@@ -22,12 +36,36 @@ const ProfileHeader = ({
   name,
   streak,
   friendsCount,
+  isSnipingEnabled = false,
 }: ProfileHeaderProps) => {
+  const currentUser = useCurrentUser();
+
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
-  const [isSwitchOn, setIsSwitchOn] = React.useState(false);
+  const [isSwitchOn, setIsSwitchOn] = React.useState(isSnipingEnabled);
 
-  const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
+  const updateUserSnipingStatus = async (isEnabled: boolean) => {
+    if (!currentUser?.uid) return; // Check if the currentUser object exists and has a uid
+
+    const userDocRef = doc(FIREBASE_STORE, 'Users', currentUser.uid); // Use uid to reference the document
+
+    try {
+      await updateDoc(userDocRef, {
+        isSnipingEnabled: isEnabled,
+      });
+      console.log('Updated sniping status successfully');
+    } catch (error) {
+      console.error('Error updating sniping status:', error);
+    }
+  };
+
+  // const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
+  const onToggleSwitch = () => {
+    const newSwitchValue = !isSwitchOn;
+    setIsSwitchOn(newSwitchValue);
+    updateUserSnipingStatus(newSwitchValue);
+  };
+
   return (
     <SafeAreaView style={styles.headerContainer}>
       <View style={styles.topContainer}>
