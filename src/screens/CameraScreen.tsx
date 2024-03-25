@@ -23,26 +23,12 @@ import {doc, getDoc, setDoc} from 'firebase/firestore';
 import useUserData from '../utils/useUserData';
 
 const CameraScreen = () => {
-  // const currentUser = useContext(UserContext) as User | null;
   const currentUser = useContext(UserContext);
-  // const [canSnipe, setCanSnipe] = useState(true);
 
   const {userData, loading: userDataLoading} = useUserData([
     'isSnipingEnabled',
   ]);
-  // const canSnipe = userData?.isSnipingEnabled ?? true;
   const [cameraReady, setCameraReady] = useState(false);
-  // useEffect(() => {
-  //   if (!currentUser) return;
-
-  //   const userRef = doc(FIREBASE_STORE, 'Users', currentUser.uid);
-  //   getDoc(userRef).then(docSnap => {
-  //     if (docSnap.exists()) {
-  //       const userData = docSnap.data();
-  //       setCanSnipe(!!userData.isSnipingEnabled); // Update canSnipe based on user data
-  //     }
-  //   });
-  // }, [currentUser]);
 
   // Handle app state
   const [appState, setAppState] = useState(AppState.currentState);
@@ -190,17 +176,6 @@ const CameraScreen = () => {
 
     setPhotoPath(null);
   }
-
-  // if (!canSnipe) {
-  //   // If sniping is disabled, show a persistent message instead of camera functionality
-  //   return (
-  //     <View style={styles.centered}>
-  //       <Text style={styles.warningText}>
-  //         Sniping is currently disabled. You cannot take or post photos.
-  //       </Text>
-  //     </View>
-  //   );
-  // }
 
   if (userDataLoading) {
     return <ActivityIndicator size="large" color="#0000ff" />;

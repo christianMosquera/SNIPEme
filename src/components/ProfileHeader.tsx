@@ -10,16 +10,6 @@ import {doc, updateDoc} from 'firebase/firestore';
 import {FIREBASE_STORE} from '../../firebase';
 import {useCurrentUser} from '../contexts/UserContext'; // Adjust the path as necessary
 
-// At the start of ProfileHeader component
-// const [isSwitchOn, setIsSwitchOn] = React.useState(false);
-
-// React.useEffect(() => {
-//   if (userData?.isSnipingEnabled !== undefined) {
-//     setIsSwitchOn(userData.isSnipingEnabled);
-//   }
-// }, [userData?.isSnipingEnabled]); // Make sure to pass userData as a prop to ProfileHeader from ProfileScreen
-
-
 type ProfileHeaderProps = {
   avatarUrl: string | null;
   username?: string;
@@ -45,9 +35,9 @@ const ProfileHeader = ({
   const [isSwitchOn, setIsSwitchOn] = React.useState(isSnipingEnabled);
 
   const updateUserSnipingStatus = async (isEnabled: boolean) => {
-    if (!currentUser?.uid) return; // Check if the currentUser object exists and has a uid
+    if (!currentUser?.uid) return;
 
-    const userDocRef = doc(FIREBASE_STORE, 'Users', currentUser.uid); // Use uid to reference the document
+    const userDocRef = doc(FIREBASE_STORE, 'Users', currentUser.uid);
 
     try {
       await updateDoc(userDocRef, {
@@ -59,7 +49,6 @@ const ProfileHeader = ({
     }
   };
 
-  // const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
   const onToggleSwitch = () => {
     const newSwitchValue = !isSwitchOn;
     setIsSwitchOn(newSwitchValue);
