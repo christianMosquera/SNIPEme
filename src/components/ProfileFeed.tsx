@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   FlatList,
@@ -8,9 +8,28 @@ import {
   Text,
   TextStyle,
 } from 'react-native';
+import getUserFriends from '../utils/getUserFriends';
+import {FIREBASE_AUTH} from '../../firebase';
 
-const ProfileFeed = () => {
+type ProfileFeedProps = {
+  user_id: string;
+};
+
+const ProfileFeed = ({user_id}: ProfileFeedProps) => {
   const [selectedFeed, setSelectedFeed] = useState('SnipesOfMe');
+  const [userFriends, setUserFriends] = useState<string[]>([]);
+
+  useEffect(() => {
+    const fetchUserFriends = async () => {
+      if (FIREBASE_AUTH.currentUser) {
+        const friends = await getUserFriends(FIREBASE_AUTH.currentUser.uid);
+        setUserFriends(friends);
+      } else {
+        console.log('User is not authenticated.');
+      }
+    };
+    fetchUserFriends();
+  }, []);
 
   const getTextStyle = (feedName: string): TextStyle => ({
     color: selectedFeed === feedName ? 'white' : 'gray',
@@ -63,14 +82,18 @@ const ProfileFeed = () => {
           </View>
         </TouchableOpacity>
       </View>
-      <FlatList
-        data={
-          selectedFeed === 'SnipesOfMe' ? dummySnipesOfMe : dummySnipesTaken
-        }
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        numColumns={3}
-      />
+      {(userFriends.includes(user_id) ||
+        (FIREBASE_AUTH.currentUser &&
+          user_id === FIREBASE_AUTH.currentUser.uid)) && (
+        <FlatList
+          data={
+            selectedFeed === 'SnipesOfMe' ? dummySnipesOfMe : dummySnipesTaken
+          }
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          numColumns={3}
+        />
+      )}
     </View>
   );
 };
@@ -86,7 +109,7 @@ const styles = StyleSheet.create({
     margin: 1,
   },
   image: {
-    height: 100, 
+    height: 100,
     flex: 1,
   },
   buttonContainer: {
@@ -113,7 +136,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // borderColor: 'red', // Border color for debugging
     // borderWidth: 1, // Border width for debugging
-    height: 50, 
+    height: 50,
   },
   buttonText: {
     color: 'white',
