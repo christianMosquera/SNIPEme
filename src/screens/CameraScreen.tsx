@@ -24,10 +24,12 @@ import useUserData from '../utils/useUserData';
 
 const CameraScreen = () => {
   const currentUser = useContext(UserContext);
+  const currentUserUID = currentUser ? currentUser.uid : null;
 
-  const {userData, loading: userDataLoading} = useUserData([
-    'isSnipingEnabled',
-  ]);
+  const {userData, loading: userDataLoading} = currentUserUID
+    ? useUserData(currentUserUID, ['isSnipingEnabled'])
+    : {userData: null, loading: false};
+
   const [cameraReady, setCameraReady] = useState(false);
 
   // Handle app state

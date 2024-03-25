@@ -8,6 +8,7 @@ import {
   updateDoc,
   where,
   arrayUnion,
+  setDoc,
 } from 'firebase/firestore';
 import React, {useState} from 'react';
 import {
@@ -25,6 +26,9 @@ import {FIREBASE_AUTH, FIREBASE_STORAGE, FIREBASE_STORE} from '../../firebase';
 import {COLORS} from '../assets/Colors';
 import {getDownloadURL, ref} from 'firebase/storage';
 import {modifyFriendsCount} from '../utils/friendsCountUtil';
+import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
+import {ProfileStackParamList} from '../types/ProfileStackParamList';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 
 interface FriendType {
   id: string;
@@ -38,8 +42,11 @@ interface FriendType {
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 const AddFriendScreen = () => {
+  const route = useRoute<RouteProp<ProfileStackParamList>>();
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState<FriendType[]>([]);
+  const navigation =
+    useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
 
   const searchUsers = async (text: string) => {
     setSearchTerm(text);
@@ -58,7 +65,14 @@ const AddFriendScreen = () => {
         return null;
       }
       try {
-        const imageUrl = await getImageUrl(userData.avatar_url);
+        var imageUrl;
+        if (userData.avatar_url) {
+          imageUrl = await getImageUrl(userData.avatar_url);
+        } else {
+          imageUrl = await getImageUrl(
+            'gs://snipeme-22003.appspot.com/avatar_photos/__no__account__/blank-profile-picture-973460_1280.webp',
+          );
+        }
         const following = await isFriend(userId);
         return {...userData, id: doc.id, imageUrl, following};
       } catch (error) {
@@ -112,18 +126,18 @@ const AddFriendScreen = () => {
       const clickedUserDoc = await getDoc(clickedUserDocRef);
 
       if (!currentUserDoc.exists()) {
-        await updateDoc(currentUserDocRef, {friends: []});
+        await setDoc(currentUserDocRef, {friends: []});
       }
 
       if (!clickedUserDoc.exists()) {
-        await updateDoc(clickedUserDocRef, {friends: []});
+        await setDoc(clickedUserDocRef, {friends: []});
       }
 
       await updateDoc(currentUserDocRef, {friends: arrayUnion(clickedUserId)});
-      await modifyFriendsCount(currentUserId, 1); // Increment the current user's friend count
+      await modifyFriendsCount(currentUserId, 1);
 
       await updateDoc(clickedUserDocRef, {friends: arrayUnion(currentUserId)});
-      await modifyFriendsCount(clickedUserId, 1); // Increment the clicked user's friend count
+      await modifyFriendsCount(clickedUserId, 1);
     }
   };
 
@@ -134,6 +148,7 @@ const AddFriendScreen = () => {
       return follow(user_id);
     }
   };
+
   const unfollow = async (friend_id: string) => {
     if (FIREBASE_AUTH.currentUser) {
       const current_uid = FIREBASE_AUTH.currentUser.uid;
@@ -143,12 +158,12 @@ const AddFriendScreen = () => {
       await updateDoc(userDocRef, {
         friends: arrayRemove(friend_id),
       });
-      await modifyFriendsCount(current_uid, -1); // Decrement the current user's friend count
+      await modifyFriendsCount(current_uid, -1);
 
       await updateDoc(friendDocRef, {
         friends: arrayRemove(current_uid),
       });
-      await modifyFriendsCount(friend_id, -1); // Decrement the unfollowed user's friend count
+      await modifyFriendsCount(friend_id, -1);
     }
   };
 
@@ -163,8 +178,14 @@ const AddFriendScreen = () => {
             uri: item.imageUrl,
           }}
         />
-        <Text style={styles.friendName}>{item.name}</Text>
-        <Text style={styles.friendName}>{item.username}</Text>
+        <View style={styles.textContainer}>
+          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.name}>
+            {item.name}
+          </Text>
+          <Text numberOfLines={1} ellipsizeMode="tail" style={styles.username}>
+            {item.username}
+          </Text>
+        </View>
         <TouchableOpacity
           onPress={() => handleFollow(item.id)}
           style={[
@@ -181,6 +202,7 @@ const AddFriendScreen = () => {
 
   const navigateToProfile = (friendId: string) => {
     console.log(`Navigating to profile of friend with ID: ${friendId}`);
+    navigation.push('ProfileMain', {user_id: friendId});
   };
 
   return (
@@ -235,12 +257,16 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   followButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    width: 90, // Adjust as needed
+    height: 30, // Adjust as needed
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 5,
+    backgroundColor: 'gray', // Default color
   },
   followButtonText: {
     color: 'white',
+    textAlign: 'center', // Center text horizontally
   },
   searchInput: {
     height: 40,
@@ -258,6 +284,22 @@ const styles = StyleSheet.create({
     width: imageSize,
     height: imageSize,
     borderRadius: imageSize / 2,
+  },
+  textContainer: {
+    flex: 1,
+    marginLeft: 10,
+    marginRight: 10,
+  },
+  name: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    overflow: 'hidden',
+    color: COLORS.white,
+  },
+  username: {
+    fontSize: 14,
+    overflow: 'hidden',
+    color: COLORS.white,
   },
 });
 export default AddFriendScreen;

@@ -1,6 +1,6 @@
 export type ProfileStackParamList = {
-  Profile: undefined;
-  Friends: undefined;
+  ProfileMain: {user_id: string};
+  Friends: {user_id: string};
   Settings: undefined;
   AddFriend: undefined;
 };

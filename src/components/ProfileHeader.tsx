@@ -7,8 +7,8 @@ import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {doc, updateDoc} from 'firebase/firestore';
-import {FIREBASE_STORE} from '../../firebase';
-import {useCurrentUser} from '../contexts/UserContext'; // Adjust the path as necessary
+import {FIREBASE_STORE, FIREBASE_AUTH} from '../../firebase';
+import {useCurrentUser} from '../contexts/UserContext';
 
 type ProfileHeaderProps = {
   avatarUrl: string | null;
@@ -17,6 +17,7 @@ type ProfileHeaderProps = {
   streak?: number;
   friendsCount?: number;
   isSnipingEnabled?: boolean;
+  user_id: string;
 };
 const isDebugMode = false;
 
@@ -27,6 +28,7 @@ const ProfileHeader = ({
   streak,
   friendsCount,
   isSnipingEnabled = false,
+  user_id,
 }: ProfileHeaderProps) => {
   const currentUser = useCurrentUser();
 
@@ -65,13 +67,15 @@ const ProfileHeader = ({
             {username}
           </Text>
         </TouchableOpacity>
-        <IconButton
-          style={styles.settingsIcon}
-          icon="cog"
-          iconColor="white"
-          size={30}
-          onPress={() => navigation.navigate('Settings')}
-        />
+        {user_id === FIREBASE_AUTH.currentUser?.uid && (
+          <IconButton
+            style={styles.settingsIcon}
+            icon="cog"
+            iconColor="white"
+            size={30}
+            onPress={() => navigation.navigate('Settings')}
+          />
+        )}
       </View>
       <View style={styles.middleContainer}>
         <View style={styles.streakContainer}>
@@ -100,7 +104,6 @@ const ProfileHeader = ({
           </TouchableOpacity>
         </View>
         <View style={styles.nameContainer}>
-          {/* Conditionally render Avatar or Avatar.Icon */}
           {avatarUrl ? (
             <Avatar.Image source={{uri: avatarUrl}} size={110} />
           ) : (
@@ -125,7 +128,7 @@ const ProfileHeader = ({
             icon="target-account"
             iconColor="white"
             size={100}
-            onPress={() => navigation.navigate('Friends')}
+            onPress={() => navigation.push('Friends', {user_id: user_id})}
           />
           {typeof friendsCount === 'number' && (
             <TouchableOpacity

@@ -6,7 +6,6 @@ import {UserContext} from '../contexts/UserContext';
 import {User} from 'firebase/auth';
 
 type UserData = {
-  // id?: string;
   avatar_url?: string | null;
   email?: string;
   name?: string;
@@ -28,18 +27,12 @@ const getImageUrl = async (avatar_url: string) => {
   }
 };
 
-const useUserData = (fieldsToFetch?: string[]) => {
+const useUserData = (uid: string, fieldsToFetch?: string[]) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const currentUser = useContext(UserContext) as User | null;
 
   useEffect(() => {
-    if (!currentUser) {
-      setLoading(false);
-      return;
-    }
-
-    const uid = currentUser.uid;
     const userRef = doc(FIREBASE_STORE, 'Users', uid);
 
     const unsubscribe = onSnapshot(
@@ -79,7 +72,7 @@ const useUserData = (fieldsToFetch?: string[]) => {
 
     // Cleanup function to unsubscribe from the snapshot listener
     return () => unsubscribe();
-  }, [currentUser, fieldsToFetch]);
+  }, [fieldsToFetch]);
 
   return {userData, loading};
 };
