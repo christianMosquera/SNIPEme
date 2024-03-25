@@ -5,37 +5,36 @@
  * @format
  */
 
-import React, { useContext } from 'react';
+import React from 'react';
 
-import {NavigationContainer} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
-import {StackParamList} from '../types/StackParamList';
+import {HomeStackParamList} from '../types/HomeStackParamList';
 import PostDetail from '../components/PostDetail';
 import ArrowHeader from '../components/ArrowHeader';
 import HomeScreen from '../screens/HomeScreen';
 
-const Stack = createNativeStackNavigator<StackParamList>();
+const Stack = createNativeStackNavigator<HomeStackParamList>();
 
 const HomeStack = () => {
   return (
     <Stack.Navigator
-    screenOptions={{
+      screenOptions={{
         headerTransparent: true,
         headerLeft: () => <ArrowHeader />,
-    }}
-    initialRouteName="Main">
-    <Stack.Screen
-        name='Detail'
+      }}
+      initialRouteName="Main">
+      <Stack.Screen
+        name="Detail"
         options={{
-        headerTitle: '',
+          headerTitle: '',
         }}
         component={PostDetail}
-    />
-    <Stack.Screen
-        name='Main'
+      />
+      <Stack.Screen
+        name="Main"
         options={{headerShown: false}}
         component={HomeScreen}
-    />
+      />
     </Stack.Navigator>
   );
 };
