@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import ProfileHeader from '../components/ProfileHeader';
 import ProfileFeed from '../components/ProfileFeed';
-import getUserData from '../utils/getUserData';
+import useUserData from '../utils/useUserData';
 import {RouteProp, useRoute} from '@react-navigation/native';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
 
@@ -16,9 +16,17 @@ const ProfileScreen = () => {
   const route = useRoute<RouteProp<ProfileStackParamList>>();
   const user_id = route.params?.user_id;
   const fieldsToFetch = useMemo(
-    () => ['name', 'avatar_url', 'username', 'streak', 'friendsCount'],
+    () => [
+      'name',
+      'avatar_url',
+      'username',
+      'streak',
+      'friendsCount',
+      'isSnipingEnabled',
+    ],
     [],
   );
+
   if (!user_id) {
     return (
       <SafeAreaView>
@@ -26,7 +34,7 @@ const ProfileScreen = () => {
       </SafeAreaView>
     );
   }
-  const {userData, loading} = getUserData(user_id, fieldsToFetch);
+  const {userData, loading} = useUserData(user_id, fieldsToFetch);
 
   React.useEffect(() => {
     console.log('User data on profile page load/update:', userData);
@@ -40,11 +48,12 @@ const ProfileScreen = () => {
     <SafeAreaView style={styles.screenContainer}>
       {userData && (
         <ProfileHeader
-          avatarUrl={userData.avatar_url}
+          avatarUrl={userData.avatar_url ?? null}
           username={userData.username}
           name={userData.name}
           streak={userData.streak}
           friendsCount={userData.friendsCount}
+          isSnipingEnabled={userData.isSnipingEnabled} // Pass isSnipingEnabled to ProfileHeader
           user_id={user_id}
         />
       )}
