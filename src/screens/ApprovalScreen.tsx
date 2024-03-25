@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ImageBackground } from 'react-native'
+import { View, Text, StyleSheet, Image, ImageBackground, SafeAreaView } from 'react-native'
 import { Button } from 'react-native-paper';
 import { Snipe } from '../types/Snipe';
-import { FIREBASE_STORE } from '../../firebase';
+import { FIREBASE_STORAGE, FIREBASE_STORE } from '../../firebase';
 import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { deleteObject, ref } from 'firebase/storage';
 
 type Props = {
   unapprovedSnipes: Array<Snipe>;
@@ -50,6 +51,8 @@ const ApprovalScreen = (props: Props) => {
     try {
       await deleteDoc(snipeRef);
 
+      deleteObject(ref(FIREBASE_STORAGE, currentSnipe.image));
+
       // Remove the snipe from the unapprovedSnipes array
       props.setUnapprovedSnipes(props.unapprovedSnipes.filter(snipe => snipe.id !== currentSnipe.id));
     } catch {
@@ -58,12 +61,12 @@ const ApprovalScreen = (props: Props) => {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Sniped by {sniperName}!</Text>
         <Text style={{color: 'white', fontSize: 16}}>on {new Date(currentSnipe.timestamp.seconds * 1000).toLocaleString('en-US', { month: 'long', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: true })}</Text>
       </View>
-      <ImageBackground source={{ uri: currentSnipe.image }} style={styles.image}>
+      <ImageBackground source={{ uri: currentSnipe.image_url }} style={styles.image}>
         <View style={styles.buttonContainer}>
           <Button onPress={rejectSnipe} style={{backgroundColor: 'white'}}>
             <Text style={{color: 'black'}}>Reject</Text>
@@ -73,7 +76,7 @@ const ApprovalScreen = (props: Props) => {
           </Button>
         </View>
       </ImageBackground>
-    </View>
+    </SafeAreaView>
   )
 }
 const styles = StyleSheet.create({

@@ -6,6 +6,7 @@ import {Text, Avatar, Button, IconButton, Switch} from 'react-native-paper';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
+import {FIREBASE_AUTH} from '../../firebase';
 
 type ProfileHeaderProps = {
   avatarUrl: string | null;
@@ -13,6 +14,7 @@ type ProfileHeaderProps = {
   name?: string;
   streak?: number;
   friendsCount?: number;
+  user_id: string;
 };
 const isDebugMode = false;
 
@@ -22,6 +24,7 @@ const ProfileHeader = ({
   name,
   streak,
   friendsCount,
+  user_id,
 }: ProfileHeaderProps) => {
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
@@ -38,13 +41,15 @@ const ProfileHeader = ({
             {username}
           </Text>
         </TouchableOpacity>
-        <IconButton
-          style={styles.settingsIcon}
-          icon="cog"
-          iconColor="white"
-          size={30}
-          onPress={() => navigation.navigate('Settings')}
-        />
+        {user_id === FIREBASE_AUTH.currentUser?.uid && (
+          <IconButton
+            style={styles.settingsIcon}
+            icon="cog"
+            iconColor="white"
+            size={30}
+            onPress={() => navigation.navigate('Settings')}
+          />
+        )}
       </View>
       <View style={styles.middleContainer}>
         <View style={styles.streakContainer}>
@@ -73,7 +78,6 @@ const ProfileHeader = ({
           </TouchableOpacity>
         </View>
         <View style={styles.nameContainer}>
-          {/* Conditionally render Avatar or Avatar.Icon */}
           {avatarUrl ? (
             <Avatar.Image source={{uri: avatarUrl}} size={110} />
           ) : (
@@ -98,7 +102,7 @@ const ProfileHeader = ({
             icon="target-account"
             iconColor="white"
             size={100}
-            onPress={() => navigation.navigate('Friends')}
+            onPress={() => navigation.push('Friends', {user_id: user_id})}
           />
           {typeof friendsCount === 'number' && (
             <TouchableOpacity

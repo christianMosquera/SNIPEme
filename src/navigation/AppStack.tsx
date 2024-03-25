@@ -16,6 +16,7 @@ import ProfileScreen from '../screens/ProfileScreen';
 import MainScreen from '../screens/MainScreen';
 import HomeStack from './HomeStack';
 import ProfileStackScreen from './ProfileStack';
+import {FIREBASE_AUTH} from '../../firebase';
 
 const Tab = createBottomTabNavigator();
 

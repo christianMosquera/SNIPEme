@@ -1,5 +1,5 @@
 import {useContext, useState, useEffect} from 'react';
-import {doc, getDoc} from 'firebase/firestore';
+import {doc, onSnapshot} from 'firebase/firestore';
 import {getDownloadURL, ref} from 'firebase/storage';
 import {FIREBASE_STORE, FIREBASE_STORAGE} from '../../firebase';
 import {UserContext} from '../contexts/UserContext';
@@ -21,57 +21,57 @@ const getImageUrl = async (avatar_url: string) => {
   }
 };
 
-const getUserData = (fieldsToFetch?: string[]) => {
+const getUserData = (uid: string, fieldsToFetch?: string[]) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const currentUser = useContext(UserContext) as User | null;
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      const uid = currentUser?.uid; // Use UID from UserContext
-      if (uid) {
-        const userRef = doc(FIREBASE_STORE, 'Users', uid);
-        try {
-          const userSnap = await getDoc(userRef);
-          if (userSnap.exists()) {
-            let data = userSnap.data();
-            if (fieldsToFetch) {
-              // Use Promise.all to wait for all getImageUrl promises to resolve
-              const filteredDataPromises = fieldsToFetch.map(async field => {
-                if (field === 'avatar_url' && data[field]) {
-                  // Convert avatar_url using getImageUrl
-                  const url = await getImageUrl(data[field]);
-                  return {[field]: url}; // Return an object with the field and its converted value
-                } else {
-                  return {[field]: data[field]}; // Return an object with the field and its original value
-                }
-              });
+    // if (!currentUser) {
+    //   setLoading(false);
+    //   return;
+    // }
 
-              // Resolve all promises and combine them into a single object
-              const resolvedPromises = await Promise.all(filteredDataPromises);
-              const filteredData = resolvedPromises.reduce((acc, current) => {
-                return {...acc, ...current};
-              }, {});
+    // const uid = currentUser.uid;
+    const userRef = doc(FIREBASE_STORE, 'Users', uid);
 
-              setUserData(filteredData);
-            } else {
-              // If no specific fields to fetch, just set the whole data
-              setUserData(data);
-            }
+    const unsubscribe = onSnapshot(
+      userRef,
+      async documentSnapshot => {
+        if (documentSnapshot.exists()) {
+          let data = documentSnapshot.data();
+          if (fieldsToFetch) {
+            // Same logic as before for filtering data and resolving image URLs
+            const filteredDataPromises = fieldsToFetch.map(async field => {
+              if (field === 'avatar_url' && data[field]) {
+                const url = await getImageUrl(data[field]);
+                return {[field]: url};
+              } else {
+                return {[field]: data[field]};
+              }
+            });
+            const resolvedPromises = await Promise.all(filteredDataPromises);
+            const filteredData = resolvedPromises.reduce((acc, current) => {
+              return {...acc, ...current};
+            }, {});
+            setUserData(filteredData);
           } else {
-            console.log('No such user!');
+            setUserData(data);
           }
-        } catch (error) {
-          console.error('Error fetching user data:', error);
+        } else {
+          console.log('No such user!');
         }
-      }
-      setLoading(false);
-    };
+        setLoading(false);
+      },
+      error => {
+        console.error('Error fetching user data:', error);
+        setLoading(false);
+      },
+    );
 
-    if (currentUser) {
-      fetchUserData();
-    }
-  }, [currentUser, fieldsToFetch]); // Rerun effect if currentUser or fieldsToFetch changes
+    // Cleanup function to unsubscribe from the snapshot listener
+    return () => unsubscribe();
+  }, [fieldsToFetch]);
 
   return {userData, loading};
 };
