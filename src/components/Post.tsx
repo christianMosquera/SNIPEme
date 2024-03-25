@@ -3,11 +3,10 @@ import * as React from 'react';
 import { Dimensions, Image, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
 import { Avatar, Button, Card, Icon, IconButton, MD3Colors, Text } from 'react-native-paper';
 import { COLORS } from '../assets/Colors';
-import { useNavigation } from '@react-navigation/native';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { StackParamList } from '../types/StackParamList';
 import { FIREBASE_STORAGE } from '../../firebase';
 import { getDownloadURL, ref } from 'firebase/storage';
+import { UserContext } from '../contexts/UserContext';
+import { User } from 'firebase/auth';
 
 
 export interface ITSnipe {
@@ -24,8 +23,11 @@ export interface ITSnipe {
 }
 
 
-const Post = ({snipe, navigation}:{snipe: ITSnipe, navigation: any}) => {
+const Post = ({snipe, navigation, onPressButton}:{snipe: ITSnipe, navigation: any, onPressButton:any}) => {
+    const currentUser = React.useContext(UserContext) as User | null;
+    const [isOwner, setIsOwner] = React.useState(false);
     const [imageUrl, setImageUrl] = React.useState("");
+
     const convertTimestamp = (timestamp : Timestamp) => {
         const millisecondsAgo = new Date().getTime() - timestamp.toMillis();
         const minutesAgo = Math.floor(millisecondsAgo / (1000 * 60));
@@ -58,23 +60,39 @@ const Post = ({snipe, navigation}:{snipe: ITSnipe, navigation: any}) => {
         }
     };
 
+    const navigateToProfile = (friendId: string) => {
+        console.log(`Navigating to profile of friend with ID: ${friendId}`);
+        navigation.push('ProfileMain', {user_id: friendId});
+    };
+
+    const handleOnPress = () => {
+        onPressButton({delete:isOwner, postId: snipe.id});
+    }
+
     React.useEffect(() => {
         getImageUrl(snipe.target_avatar_url);
+        setIsOwner(currentUser?.uid == snipe.sniper_id)
     }, [])
     return (
         <Card style={styles.card}>
             <View>
                 <Card.Title
-                    titleStyle={styles.title} 
-                    title={snipe.target_username} 
+                    title={<Text 
+                            style={styles.title}
+                            onPress={() => navigateToProfile(snipe.target_id)}
+                            >{snipe.target_username}</Text>} 
                     subtitleStyle={styles.title}
-                    subtitle={`Sniped by ${snipe.sniper_username} • ${convertTimestamp(snipe.timestamp)}`}
+                    subtitle={<Text style={styles.subtitle}>
+                            Sniped by&nbsp;
+                            <Text style={styles.subtitle} onPress={() => navigateToProfile(snipe.sniper_id)}>{snipe.sniper_username}</Text> 
+                            &nbsp;• {convertTimestamp(snipe.timestamp)}
+                            </Text>}
                     leftStyle={{backgroundColor:COLORS.BACKGROUND, marginLeft: -10}}
                     left={() => {return imageUrl == "" ?
-                        <Avatar.Icon size={46} icon="account" style={{backgroundColor: '#676767'}}/> :
-                        <Avatar.Image size={46} source={{ uri: imageUrl }} />;
+                        <Avatar.Icon onTouchEnd={() => navigateToProfile(snipe.target_id)} size={46} icon="account" style={{backgroundColor: '#676767'}}/> :
+                        <Avatar.Image onTouchEnd={() => navigateToProfile(snipe.target_id)} size={46} source={{ uri: imageUrl }} />;
                     }}
-                    right={(props) => <IconButton {...props} icon="dots-horizontal" onPress={() => {}} />}
+                    right={(props) => <IconButton {...props} icon={isOwner ? "trash-can-outline" : "alert-circle-outline"} onPress={handleOnPress} />}
                 />
             </View>
             <TouchableWithoutFeedback onPress={() => navigation.navigate('Detail', {snipe})}>
@@ -93,7 +111,12 @@ const styles = StyleSheet.create({
   },
   title: {
     color: 'white',
+    fontSize: 18
   },
+  subtitle: {
+    color: 'white',
+    fontSize: 14
+  }
 });
 
 export default Post;
