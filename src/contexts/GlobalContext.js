@@ -102,9 +102,9 @@ export const GlobalProvider = ({children}) => {
         const docData = snipesArray[i].data();
         const imageRef = ref(FIREBASE_STORAGE, docData.image);
         getDownloadURL(imageRef).then((image_url) => {
-          setSnipesCache((prev) => ({
-            ...prev,
-            [snipesArray[i].id]: {
+          setSnipesCache((prev) => {
+            const newSnipe = {
+              id: snipesArray[i].id,
               approved: docData.approved,
               sniper_id: docData.sniper_id,
               target_id: docData.target_id,
@@ -113,7 +113,8 @@ export const GlobalProvider = ({children}) => {
               image_blob: null, // for now
               timestamp: docData.timestamp,
             }
-          }));
+            return prev ? [...prev, newSnipe] : [newSnipe];
+          });
         });
 
         // Add sniper to cache if needed
