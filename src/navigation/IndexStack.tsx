@@ -3,50 +3,24 @@ import React, {useEffect, useState} from 'react';
 import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import ApprovalScreen from '../screens/ApprovalScreen';
-import {FIREBASE_AUTH, FIREBASE_STORAGE, FIREBASE_STORE} from '../../firebase';
-import {User, onAuthStateChanged} from 'firebase/auth';
-import { and, collection, getDocs, query, where } from 'firebase/firestore';
+
+import { useGlobalState } from '../contexts/GlobalContext';
+import { GlobalContextType } from '../types/GlobalContextType';
 import { Snipe } from '../types/Snipe';
-import { getDownloadURL, ref } from 'firebase/storage';
 
 const IndexStack = () => {
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(FIREBASE_AUTH, authUser => {
-      setUser(authUser);
-    });
-
-    // Unsubscribe when component unmounts
-    return unsubscribe;
-  }, []);
+  const globalContext = useGlobalState() as unknown as GlobalContextType;
+  const user = globalContext.authData;
+  const snipes = globalContext.snipesCache;
 
   // Check if user has unapproved snipes
   const [unapprovedSnipes, setUnapprovedSnipes] = useState<Array<Snipe>>([]);
   useEffect(() => {
     if (!user) return;
+    if (!snipes) return;
 
-    // Query the database for unapproved snipes
-    const postsRef = collection(FIREBASE_STORE, "Posts");
-    const unapprovedSnipesQuery = query(postsRef, 
-      and(
-        where("target_id", "==", user.uid),
-        where("approved", "==", false)
-      ));
-
-    // Set state to false if there are no snipes, true otherwise
-    getDocs(unapprovedSnipesQuery).then(async (result) => {
-      const resultArray = result.docs.map((doc) => {
-        return { id: doc.id, ...doc.data() } as Snipe;
-      });
-      for (let i = 0; i < resultArray.length; i++) {
-        const sniperRef = ref(FIREBASE_STORAGE, resultArray[i].image);
-        const url = await getDownloadURL(sniperRef);
-        resultArray[i].image_url = url;
-      }
-      setUnapprovedSnipes(resultArray);
-    });
-  }, [user]);
+    setUnapprovedSnipes(snipes.filter((snipe) => snipe.target_id === user.uid && !snipe.approved));
+  }, [user, snipes]);
 
   if (user) {
     if (unapprovedSnipes.length > 0) {
