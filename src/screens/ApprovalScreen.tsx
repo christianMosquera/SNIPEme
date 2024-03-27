@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Image, ImageBackground } from 'react-native'
+import { View, Text, StyleSheet, ImageBackground } from 'react-native'
 import { Button } from 'react-native-paper';
 import { Snipe } from '../types/Snipe';
 import { FIREBASE_STORAGE, FIREBASE_STORE } from '../../firebase';
-import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
+import { useGlobalState } from '../contexts/GlobalContext';
+import { GlobalContextType } from '../types/GlobalContextType';
 
 type Props = {
   unapprovedSnipes: Array<Snipe>;
@@ -19,16 +21,13 @@ const ApprovalScreen = (props: Props) => {
   }, [props.unapprovedSnipes]);
 
   // Keep track of the sniper's name
+  const globalContext = useGlobalState() as unknown as GlobalContextType;
   const [sniperName, setSniperName] = useState<string>('');
   useEffect(() => {
-    // Query the database for the sniper's name
-    const userRef = doc(FIREBASE_STORE, "Users", currentSnipe.sniper_id);
-    getDoc(userRef).then((result) => {
-      if (result.exists()) {
-        setSniperName(result.data().username);
-      }
-    });
-  }, [currentSnipe.sniper_id]);
+    if (!globalContext.usersCache) return;
+    
+    setSniperName(globalContext.usersCache[currentSnipe.sniper_id]?.name);
+  }, [currentSnipe.sniper_id, globalContext.usersCache]);
 
   const approveSnipe = async () => {
     // Set approved to true in the db
@@ -51,7 +50,7 @@ const ApprovalScreen = (props: Props) => {
     try {
       await deleteDoc(snipeRef);
 
-      deleteObject(ref(FIREBASE_STORAGE, currentSnipe.image));
+      deleteObject(ref(FIREBASE_STORAGE, currentSnipe.image_ref));
 
       // Remove the snipe from the unapprovedSnipes array
       props.setUnapprovedSnipes(props.unapprovedSnipes.filter(snipe => snipe.id !== currentSnipe.id));
