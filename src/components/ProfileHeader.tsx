@@ -1,11 +1,11 @@
 // ProfileHeader.tsx
 
-import React, {useState} from 'react';
+import React from 'react';
 import {StyleSheet, View, SafeAreaView, TouchableOpacity} from 'react-native';
 import {Text, Avatar, Button, IconButton, Switch} from 'react-native-paper';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
 import {FIREBASE_AUTH} from '../../firebase';
 
 type ProfileHeaderProps = {
@@ -29,7 +29,6 @@ const ProfileHeader = ({
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
   const [isSwitchOn, setIsSwitchOn] = React.useState(false);
-
   const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
   return (
     <SafeAreaView style={styles.headerContainer}>

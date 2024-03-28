@@ -274,18 +274,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  friendName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
   followButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    width: 90,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 5,
+    backgroundColor: 'gray',
   },
   followButtonText: {
     color: 'white',
+    textAlign: 'center',
   },
   searchInput: {
     height: 40,

@@ -115,8 +115,29 @@ const AddFriendScreen = () => {
     }
   };
 
+  const followRequest = async (clickedUserId: string) => {
+    if (FIREBASE_AUTH.currentUser) {
+      const currentUserId = FIREBASE_AUTH.currentUser.uid;
+      const clickedUserDocRef = doc(FIREBASE_STORE, 'Friends', clickedUserId);
+      const clickedUserDoc = await getDoc(clickedUserDocRef);
+
+      if (!clickedUserDoc.exists()) {
+        await setDoc(clickedUserDocRef, {friends: [], pendingRequests: []});
+      }
+
+      await updateDoc(clickedUserDocRef, {
+        pendingRequests: arrayUnion(currentUserId),
+      });
+    }
+  };
+
   const follow = async (clickedUserId: string) => {
     if (FIREBASE_AUTH.currentUser) {
+      const updatedUsers = users.map(user =>
+        user.id === clickedUserId ? {...user, following: true} : user,
+      );
+      setUsers(updatedUsers);
+
       const currentUserId = FIREBASE_AUTH.currentUser.uid;
 
       const currentUserDocRef = doc(FIREBASE_STORE, 'Friends', currentUserId);
@@ -145,12 +166,17 @@ const AddFriendScreen = () => {
     if (await isFriend(user_id)) {
       return unfollow(user_id);
     } else {
-      return follow(user_id);
+      return followRequest(user_id);
     }
   };
 
   const unfollow = async (friend_id: string) => {
     if (FIREBASE_AUTH.currentUser) {
+      const updatedUsers = users.map(user =>
+        user.id === friend_id ? {...user, following: false} : user,
+      );
+      setUsers(updatedUsers);
+
       const current_uid = FIREBASE_AUTH.currentUser.uid;
       const userDocRef = doc(FIREBASE_STORE, 'Friends', current_uid);
       const friendDocRef = doc(FIREBASE_STORE, 'Friends', friend_id);
@@ -257,16 +283,16 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   followButton: {
-    width: 90, // Adjust as needed
-    height: 30, // Adjust as needed
+    width: 90,
+    height: 30,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
-    backgroundColor: 'gray', // Default color
+    backgroundColor: 'gray',
   },
   followButtonText: {
     color: 'white',
-    textAlign: 'center', // Center text horizontally
+    textAlign: 'center',
   },
   searchInput: {
     height: 40,
