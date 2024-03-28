@@ -38,6 +38,7 @@ interface FriendType {
   avatar_url: string;
   imageUrl: string;
   following: boolean;
+  requested: boolean;
 }
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
@@ -74,7 +75,8 @@ const AddFriendScreen = () => {
           );
         }
         const following = await isFriend(userId);
-        return {...userData, id: doc.id, imageUrl, following};
+        const requested = await requesting(userId);
+        return {...userData, id: doc.id, imageUrl, following, requested};
       } catch (error) {
         console.error('Error fetching image URL:', error);
         return {...userData, id: doc.id, imageUrl: null};
@@ -128,45 +130,66 @@ const AddFriendScreen = () => {
       await updateDoc(clickedUserDocRef, {
         pendingRequests: arrayUnion(currentUserId),
       });
+
+      setUsers(prevUsers => {
+        return prevUsers.map(user => {
+          if (user.id === clickedUserId) {
+            return {...user, requested: true};
+          }
+          return user;
+        });
+      });
     }
   };
 
-  const follow = async (clickedUserId: string) => {
+  const unRequest = async (clickedUserId: string) => {
     if (FIREBASE_AUTH.currentUser) {
-      const updatedUsers = users.map(user =>
-        user.id === clickedUserId ? {...user, following: true} : user,
-      );
-      setUsers(updatedUsers);
-
       const currentUserId = FIREBASE_AUTH.currentUser.uid;
-
-      const currentUserDocRef = doc(FIREBASE_STORE, 'Friends', currentUserId);
-      const currentUserDoc = await getDoc(currentUserDocRef);
-
       const clickedUserDocRef = doc(FIREBASE_STORE, 'Friends', clickedUserId);
-      const clickedUserDoc = await getDoc(clickedUserDocRef);
 
-      if (!currentUserDoc.exists()) {
-        await setDoc(currentUserDocRef, {friends: []});
+      await updateDoc(clickedUserDocRef, {
+        pendingRequests: arrayRemove(currentUserId),
+      });
+
+      setUsers(prevUsers => {
+        return prevUsers.map(user => {
+          if (user.id === clickedUserId) {
+            return {...user, requested: false};
+          }
+          return user;
+        });
+      });
+    }
+  };
+
+  const requesting = async (userId: string) => {
+    if (FIREBASE_AUTH.currentUser) {
+      const currentUid = FIREBASE_AUTH.currentUser.uid;
+      const store = FIREBASE_STORE;
+      try {
+        const docRef = doc(store, 'Friends', userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const dataArray = docSnap.data().pendingRequests;
+          return dataArray.includes(currentUid);
+        } else {
+          console.log('No such document!');
+          return false;
+        }
+      } catch (error) {
+        console.error('Error getting document:', error);
+        return false;
       }
-
-      if (!clickedUserDoc.exists()) {
-        await setDoc(clickedUserDocRef, {friends: []});
-      }
-
-      await updateDoc(currentUserDocRef, {friends: arrayUnion(clickedUserId)});
-      await modifyFriendsCount(currentUserId, 1);
-
-      await updateDoc(clickedUserDocRef, {friends: arrayUnion(currentUserId)});
-      await modifyFriendsCount(clickedUserId, 1);
     }
   };
 
   const handleFollow = async (user_id: string) => {
     if (await isFriend(user_id)) {
       return unfollow(user_id);
+    } else if (await requesting(user_id)) {
+      return unRequest(user_id);
     } else {
-      return followRequest(user_id);
+      followRequest(user_id);
     }
   };
 
@@ -193,6 +216,24 @@ const AddFriendScreen = () => {
     }
   };
 
+  const getButtonText = (item: FriendType): string => {
+    if (item.following) {
+      return 'Following';
+    } else if (item.requested) {
+      return 'Requested';
+    } else {
+      return 'Follow';
+    }
+  };
+
+  const getButtonColor = (item: FriendType): string => {
+    if (item.following || item.requested) {
+      return 'gray';
+    } else {
+      return 'blue';
+    }
+  };
+
   const renderUserItem = ({item}: {item: FriendType}) => (
     <TouchableOpacity
       style={styles.friendContainer}
@@ -216,11 +257,9 @@ const AddFriendScreen = () => {
           onPress={() => handleFollow(item.id)}
           style={[
             styles.followButton,
-            {backgroundColor: item.following ? 'gray' : 'blue'},
+            {backgroundColor: getButtonColor(item)},
           ]}>
-          <Text style={styles.followButtonText}>
-            {item.following ? 'Following' : 'Follow'}
-          </Text>
+          <Text style={styles.followButtonText}>{getButtonText(item)}</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
