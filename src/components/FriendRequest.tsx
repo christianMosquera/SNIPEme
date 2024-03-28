@@ -102,16 +102,21 @@ const FriendRequest = ({
             {username}
           </Text>
         </View>
-        <TouchableOpacity
-          onPress={() => acceptRequest(userId)}
-          style={[styles.followButton, {backgroundColor: 'blue'}]}>
-          <Text style={styles.followButtonText}>Accept</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => rejectRequest(userId)}
-          style={[styles.followButton, {backgroundColor: 'gray'}]}>
-          <Text style={styles.followButtonText}>Reject</Text>
-        </TouchableOpacity>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            onPress={() => acceptRequest(userId)}
+            style={[
+              styles.followButton,
+              {backgroundColor: 'blue', marginRight: 10},
+            ]}>
+            <Text style={styles.followButtonText}>Accept</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => rejectRequest(userId)}
+            style={[styles.followButton, {backgroundColor: 'gray'}]}>
+            <Text style={styles.followButtonText}>Reject</Text>
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
   );
@@ -119,6 +124,10 @@ const FriendRequest = ({
 
 const imageSize = Math.min(screenWidth, screenHeight) * 0.15;
 const styles = StyleSheet.create({
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
   friendContainer: {
     flexDirection: 'row',
     alignItems: 'center',
