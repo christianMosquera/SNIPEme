@@ -78,7 +78,10 @@ const AddFriendScreen = () => {
         const requested = await requesting(userId);
         return {...userData, id: doc.id, imageUrl, following, requested};
       } catch (error) {
-        console.error('Error fetching image URL:', error);
+        console.error(
+          'In AddFriendScreen, searchUsers: Error fetching image URL:',
+          error,
+        );
         return {...userData, id: doc.id, imageUrl: null};
       }
     });
@@ -93,7 +96,10 @@ const AddFriendScreen = () => {
       const url = await getDownloadURL(imageRef);
       return url;
     } catch (error) {
-      console.error('Error getting download URL:', error);
+      console.error(
+        'In AddFriendScreen, getImageUrl: Error getting download URL:',
+        error,
+      );
     }
   };
 
@@ -107,11 +113,16 @@ const AddFriendScreen = () => {
           const dataArray = docSnap.data().friends;
           return dataArray.includes(userId);
         } else {
-          console.log('No such document!');
+          console.log(
+            `In AddFriendScreen, isFriend: Friends document for current user (${FIREBASE_AUTH.currentUser.uid}) does not exist.`,
+          );
           return false;
         }
       } catch (error) {
-        console.error('Error getting document:', error);
+        console.error(
+          `In AddFriendScreen, isFriend: Error checking friendship status for user ${userId} with current user ${FIREBASE_AUTH.currentUser.uid}:`,
+          error,
+        );
         return false;
       }
     }
@@ -173,11 +184,16 @@ const AddFriendScreen = () => {
           const dataArray = docSnap.data().pendingRequests;
           return dataArray.includes(currentUid);
         } else {
-          console.log('No such document!');
+          console.log(
+            `In AddFriendScreen, requesting: No document found for user ID ${userId} in Friends collection. No pending requests can exist.`,
+          );
           return false;
         }
       } catch (error) {
-        console.error('Error getting document:', error);
+        console.error(
+          `In AddFriendScreen, requesting: Error accessing Friends document for user ID ${userId} (checking from current user ID ${currentUid}):`,
+          error,
+        );
         return false;
       }
     }

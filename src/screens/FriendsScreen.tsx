@@ -73,7 +73,10 @@ const FriendsScreen = () => {
                   const following = await isFriend(friendId);
                   return {id: friendId, ...friendData, imageUrl, following};
                 } catch (error) {
-                  console.error('Error fetching image URL:', error);
+                  console.error(
+                    'In FriendScreen, unsubscribe: Error fetching image URL:',
+                    error,
+                  );
                   return {id: friendId, ...friendData, imageUrl: null};
                 }
               }
@@ -107,7 +110,10 @@ const FriendsScreen = () => {
       const url = await getDownloadURL(imageRef);
       return url;
     } catch (error) {
-      console.error('Error getting download URL:', error);
+      console.error(
+        `In FriendScreen, getImageUrl: Error getting download URL for avatar: ${avatar_url}`,
+        error,
+      );
     }
   };
 
@@ -139,11 +145,16 @@ const FriendsScreen = () => {
           const dataArray = docSnap.data().friends;
           return dataArray.includes(userId);
         } else {
-          console.log('No such document!');
+          console.log(
+            'In FriendsScreen, isFriend: Friend list document for current user does not exist.',
+          );
           return false;
         }
       } catch (error) {
-        console.error('Error getting document:', error);
+        console.error(
+          `In FriendsScreen, isFriend: Error checking if user ${userId} is a friend.`,
+          error,
+        );
         return false;
       }
     }
