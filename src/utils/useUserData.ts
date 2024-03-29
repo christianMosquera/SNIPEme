@@ -6,7 +6,13 @@ import {UserContext} from '../contexts/UserContext';
 import {User} from 'firebase/auth';
 
 type UserData = {
-  [key: string]: any; // This allows dynamic access with string keys
+  avatar_url?: string | null;
+  email?: string;
+  name?: string;
+  friendsCount?: number;
+  isSnipingEnabled?: boolean;
+  streak?: number;
+  username?: string;
 };
 
 const getImageUrl = async (avatar_url: string) => {
@@ -21,25 +27,20 @@ const getImageUrl = async (avatar_url: string) => {
   }
 };
 
-const getUserData = (uid: string, fieldsToFetch?: string[]) => {
+const useUserData = (uid: string, fieldsToFetch?: string[]) => {
   const [userData, setUserData] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const currentUser = useContext(UserContext) as User | null;
 
   useEffect(() => {
-    // if (!currentUser) {
-    //   setLoading(false);
-    //   return;
-    // }
-
-    // const uid = currentUser.uid;
     const userRef = doc(FIREBASE_STORE, 'Users', uid);
 
     const unsubscribe = onSnapshot(
       userRef,
       async documentSnapshot => {
         if (documentSnapshot.exists()) {
-          let data = documentSnapshot.data();
+          const data = documentSnapshot.data();
+
           if (fieldsToFetch) {
             // Same logic as before for filtering data and resolving image URLs
             const filteredDataPromises = fieldsToFetch.map(async field => {
@@ -76,4 +77,4 @@ const getUserData = (uid: string, fieldsToFetch?: string[]) => {
   return {userData, loading};
 };
 
-export default getUserData;
+export default useUserData;
