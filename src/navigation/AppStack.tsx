@@ -5,7 +5,7 @@
  * @format
  */
 
-import React from 'react';
+import React, { useContext, useEffect } from 'react';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -16,10 +16,18 @@ import ProfileScreen from '../screens/ProfileScreen';
 import MainScreen from '../screens/MainScreen';
 import HomeStack from './HomeStack';
 import ProfileStackScreen from './ProfileStack';
+import { getToken, NotificationListener, requestUserPermission, setToken } from '../utils/pushnotification';
+import { UserContext } from '../contexts/UserContext';
 
 const Tab = createBottomTabNavigator();
-
 function AppStack(): React.JSX.Element {
+  const currentUser = useContext(UserContext);
+  useEffect(() => {
+    requestUserPermission();
+    NotificationListener();
+    getToken();
+    setToken(currentUser);
+  }, [])
   return (
     <NavigationContainer>
       <Tab.Navigator
