@@ -64,18 +64,7 @@ const CameraScreen = () => {
   }
 
   // Handle target
-  const [currentTarget, setCurrentTarget] = useState<string | null>(null)
-  useEffect(() => {
-    if (!currentUser) return;
-
-    // Query the database for the sniper's name
-    const targetRef = doc(FIREBASE_STORE, "Targets", currentUser.uid);
-    getDoc(targetRef).then((result) => {
-      if (result.exists()) {
-        setCurrentTarget(result.data().target_id);
-      }
-    });
-  }, [currentUser]);
+  const currentTarget = globalContext.userData?.currentTarget;
 
   // Handle posting
   async function postPhoto() {
