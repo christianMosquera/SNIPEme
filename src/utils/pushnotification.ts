@@ -4,6 +4,7 @@ import { FIREBASE_STORE } from '../../firebase';
 import { useContext } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { PermissionsAndroid } from 'react-native';
 
 export async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
@@ -14,10 +15,14 @@ export async function requestUserPermission() {
     if (enabled) {
         console.log('Authorization status:', authStatus);
     }
+
+    const checkPermission = await PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+    if (checkPermission == false) {
+        const request = await PermissionsAndroid.request(PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS);
+    }
 }
 export async function getToken(){
     let token = await AsyncStorage.getItem('notifToken');
-    console.log(token)
     if (!token) {
         try {
             token = await messaging().getToken();
