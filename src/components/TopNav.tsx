@@ -1,13 +1,14 @@
 import { StyleSheet, View } from "react-native"
 import { IconButton, MD3Colors, Text } from "react-native-paper";
 
-const TopNav = () => {
+const TopNav = ({navigation}:{navigation: any}) => {
     return (
         <View style={styles.nav}>
             <IconButton
                 icon={'account-plus'} 
                 size={30}
                 iconColor={MD3Colors.neutral90}
+                onPress={() => navigation.navigate('AddFriend')}
             />
             <Text style={styles.title}>
                 SNIPEME
