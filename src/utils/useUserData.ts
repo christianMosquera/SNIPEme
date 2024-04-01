@@ -22,7 +22,7 @@ const getImageUrl = async (avatar_url: string) => {
     const url = await getDownloadURL(imageRef);
     return url;
   } catch (error) {
-    console.error('Error getting download URL:', error);
+    console.error('Error getting download URL in getUserData:', error);
     return null; // Return null or a default URL if there's an error
   }
 };

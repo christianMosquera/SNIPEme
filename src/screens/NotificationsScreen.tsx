@@ -32,11 +32,23 @@ const NotificationsScreen = () => {
                 if (requestDocSnap.exists()) {
                   const requestData = requestDocSnap.data();
                   try {
-                    const imageUrl = await getImageUrl(requestData.avatar_url);
-                    return {userId: requestId, ...requestData, imageUrl};
+                    if (requestData.avatar_url) {
+                      const imageUrl = await getImageUrl(
+                        requestData.avatar_url,
+                      );
+                      return {userId: requestId, ...requestData, imageUrl};
+                    } else {
+                      return {
+                        userId: requestId,
+                        ...requestData,
+                        imageUrl: null,
+                      };
+                    }
                   } catch (error) {
-                    console.error('Error fetching image URL:', error);
-                    return {userId: requestId, ...requestData, imageUrl: null};
+                    console.error(
+                      'Error fetching image URL in Notifications:',
+                      error,
+                    );
                   }
                 }
                 return null;
@@ -57,11 +69,13 @@ const NotificationsScreen = () => {
   const getImageUrl = async (avatar_url: string) => {
     const storage = FIREBASE_STORAGE;
     const imageRef = ref(storage, avatar_url);
+    console.log(imageRef);
+    console.log(avatar_url);
     try {
       const url = await getDownloadURL(imageRef);
       return url;
     } catch (error) {
-      console.error('Error getting download URL:', error);
+      console.error('Error getting download URL in Notifications:', error);
     }
   };
 

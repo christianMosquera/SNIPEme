@@ -21,6 +21,7 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import {modifyFriendsCount} from '../utils/friendsCountUtil';
+import {Avatar} from 'react-native-paper';
 
 type FriendRequestProps = {
   userId: string;
@@ -88,12 +89,16 @@ const FriendRequest = ({
       style={styles.friendContainer}
       onPress={() => navigateToProfile(userId)}>
       <View style={styles.friendInfo}>
-        <Image
-          style={styles.image}
-          source={{
-            uri: imageUrl,
-          }}
-        />
+        {imageUrl ? (
+          <Avatar.Image source={{uri: imageUrl}} size={75} />
+        ) : (
+          <Avatar.Icon
+            style={styles.avatar}
+            size={75}
+            color="white"
+            icon="account"
+          />
+        )}
         <View style={styles.textContainer}>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.name}>
             {name}
@@ -173,6 +178,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     overflow: 'hidden',
     color: COLORS.white,
+  },
+  avatar: {
+    backgroundColor: 'gray',
   },
 });
 

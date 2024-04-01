@@ -26,6 +26,7 @@ import {modifyFriendsCount} from '../utils/friendsCountUtil';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
+import {Avatar} from 'react-native-paper';
 
 interface FriendType {
   id: string;
@@ -69,12 +70,22 @@ const FriendsScreen = () => {
               if (friendDocSnap.exists()) {
                 const friendData = friendDocSnap.data();
                 try {
-                  const imageUrl = await getImageUrl(friendData.avatar_url);
-                  const following = await isFriend(friendId);
-                  return {id: friendId, ...friendData, imageUrl, following};
+                  if (friendData.avatar_url) {
+                    const imageUrl = await getImageUrl(friendData.avatar_url);
+                    const following = await isFriend(friendId);
+                    return {id: friendId, ...friendData, imageUrl, following};
+                  } else {
+                    const following = await isFriend(friendId);
+                    return {
+                      id: friendId,
+                      ...friendData,
+                      imageUrl: null,
+                      following,
+                    };
+                  }
                 } catch (error) {
                   console.error(
-                    'In FriendScreen, unsubscribe: Error fetching image URL:',
+                    'Error fetching image URL in Friends screen:',
                     error,
                   );
                   return {id: friendId, ...friendData, imageUrl: null};
@@ -203,12 +214,16 @@ const FriendsScreen = () => {
       style={styles.friendContainer}
       onPress={() => navigateToProfile(item.id)}>
       <View style={styles.friendInfo}>
-        <Image
-          style={styles.image}
-          source={{
-            uri: item.imageUrl,
-          }}
-        />
+        {item.imageUrl ? (
+          <Avatar.Image source={{uri: item.imageUrl}} size={75} />
+        ) : (
+          <Avatar.Icon
+            style={styles.avatar}
+            size={75}
+            color="white"
+            icon="account"
+          />
+        )}
         <View style={styles.textContainer}>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.name}>
             {item.name}
@@ -329,6 +344,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     overflow: 'hidden',
     color: COLORS.white,
+  },
+  avatar: {
+    backgroundColor: 'gray',
   },
 });
 

@@ -29,6 +29,7 @@ import {modifyFriendsCount} from '../utils/friendsCountUtil';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {Avatar} from 'react-native-paper';
 
 interface FriendType {
   id: string;
@@ -70,18 +71,13 @@ const AddFriendScreen = () => {
         if (userData.avatar_url) {
           imageUrl = await getImageUrl(userData.avatar_url);
         } else {
-          imageUrl = await getImageUrl(
-            'gs://snipeme-22003.appspot.com/avatar_photos/__no__account__/blank-profile-picture-973460_1280.webp',
-          );
+          imageUrl = null;
         }
         const following = await isFriend(userId);
         const requested = await requesting(userId);
         return {...userData, id: doc.id, imageUrl, following, requested};
       } catch (error) {
-        console.error(
-          'In AddFriendScreen, searchUsers: Error fetching image URL:',
-          error,
-        );
+        console.error('Error fetching image URL in Add Friend Screen:', error);
         return {...userData, id: doc.id, imageUrl: null};
       }
     });
@@ -96,10 +92,7 @@ const AddFriendScreen = () => {
       const url = await getDownloadURL(imageRef);
       return url;
     } catch (error) {
-      console.error(
-        'In AddFriendScreen, getImageUrl: Error getting download URL:',
-        error,
-      );
+      console.error('Error getting download URL in Add Friend:', error);
     }
   };
 
@@ -255,12 +248,16 @@ const AddFriendScreen = () => {
       style={styles.friendContainer}
       onPress={() => navigateToProfile(item.id)}>
       <View style={styles.friendInfo}>
-        <Image
-          style={styles.image}
-          source={{
-            uri: item.imageUrl,
-          }}
-        />
+        {item.imageUrl ? (
+          <Avatar.Image source={{uri: item.imageUrl}} size={75} />
+        ) : (
+          <Avatar.Icon
+            style={styles.avatar}
+            size={75}
+            color="white"
+            icon="account"
+          />
+        )}
         <View style={styles.textContainer}>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.name}>
             {item.name}
@@ -381,6 +378,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     overflow: 'hidden',
     color: COLORS.white,
+  },
+  avatar: {
+    backgroundColor: 'gray',
   },
 });
 export default AddFriendScreen;
