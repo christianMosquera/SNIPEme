@@ -147,7 +147,7 @@ const AddFriendScreen = () => {
       const notification = {
         target_id: clickedUserId,
         sender_id: currentUserId,
-        message_type: 'Friend Request',
+        message_type: 'friend',
       };
       sendNotification(notification);
     }
