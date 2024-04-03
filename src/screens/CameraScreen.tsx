@@ -20,6 +20,7 @@ import {FIREBASE_STORAGE, FIREBASE_STORE} from '../../firebase';
 import {UserContext} from '../contexts/UserContext';
 import {User} from 'firebase/auth';
 import {doc, getDoc, setDoc} from 'firebase/firestore';
+import { getUsername, sendNotification } from '../utils/pushnotification';
 import useUserData from '../utils/useUserData';
 
 const CameraScreen = () => {
@@ -177,6 +178,13 @@ const CameraScreen = () => {
     );
 
     setPhotoPath(null);
+
+    const notification = {
+      target_id: currentTarget,
+      sender_id: currentUser.uid,
+      message_type: 'sniped'
+    }
+    sendNotification(notification);
   }
 
   if (userDataLoading) {
