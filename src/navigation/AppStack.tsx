@@ -20,6 +20,7 @@ import { getToken, NotificationListener, requestUserPermission, setToken } from 
 import { UserContext } from '../contexts/UserContext';
 import {FIREBASE_AUTH} from '../../firebase';
 import { Platform } from 'react-native';
+import FlashMessage from "react-native-flash-message";
 
 const Tab = createBottomTabNavigator();
 function AppStack(): React.JSX.Element {
@@ -42,6 +43,7 @@ function AppStack(): React.JSX.Element {
         <Tab.Screen name="Camera" component={CameraScreen} />
         <Tab.Screen name="Profile" component={ProfileStackScreen} />
       </Tab.Navigator>
+      <FlashMessage position="top" />
     </NavigationContainer>
   );
 }
