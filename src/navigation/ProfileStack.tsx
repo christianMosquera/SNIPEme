@@ -7,21 +7,33 @@ import {COLORS} from '../assets/Colors';
 import SettingsScreen from '../screens/SettingsScreen';
 import PlusHeader from '../components/PlusHeader';
 import AddFriendScreen from '../screens/AddFriendScreen';
+import {FIREBASE_AUTH} from '../../firebase';
+import {useNavigationState} from '@react-navigation/native';
 
 const ProfileStack = createStackNavigator();
 
 function ProfileStackScreen() {
+  const currentUserID = FIREBASE_AUTH.currentUser?.uid;
+
   return (
     <ProfileStack.Navigator
       screenOptions={{
         headerTransparent: true,
       }}>
       <ProfileStack.Screen
-        options={{
+        options={() => ({
           headerTitle: '',
-        }}
-        name="Profile"
+          headerLeft: () => {
+            const index = useNavigationState(state => state.index);
+            if (index === 0) {
+              return null;
+            }
+            return <ArrowHeader />;
+          },
+        })}
+        name="ProfileMain"
         component={ProfileScreen}
+        initialParams={{user_id: currentUserID}}
       />
       <ProfileStack.Screen
         name="Friends"

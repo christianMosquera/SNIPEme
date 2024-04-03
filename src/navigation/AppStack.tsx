@@ -18,6 +18,7 @@ import HomeStack from './HomeStack';
 import ProfileStackScreen from './ProfileStack';
 import { getToken, NotificationListener, requestUserPermission, setToken } from '../utils/pushnotification';
 import { UserContext } from '../contexts/UserContext';
+import {FIREBASE_AUTH} from '../../firebase';
 
 const Tab = createBottomTabNavigator();
 function AppStack(): React.JSX.Element {

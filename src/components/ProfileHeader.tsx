@@ -1,11 +1,15 @@
 // ProfileHeader.tsx
 
-import React, {useState} from 'react';
+import React from 'react';
 import {StyleSheet, View, SafeAreaView, TouchableOpacity} from 'react-native';
-import {Text, Avatar, Button, IconButton, Switch} from 'react-native-paper';
+import {Text, Avatar, IconButton, Switch} from 'react-native-paper';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
-import {useNavigation} from '@react-navigation/native';
+import {useNavigation, useRoute} from '@react-navigation/native';
+import {doc, updateDoc} from 'firebase/firestore';
+import {FIREBASE_STORE, FIREBASE_AUTH} from '../../firebase';
+import {useCurrentUser} from '../contexts/UserContext';
+
 
 type ProfileHeaderProps = {
   avatarUrl: string | null;
@@ -13,6 +17,8 @@ type ProfileHeaderProps = {
   name?: string;
   streak?: number;
   friendsCount?: number;
+  isSnipingEnabled?: boolean;
+  user_id: string;
 };
 const isDebugMode = false;
 
@@ -22,12 +28,37 @@ const ProfileHeader = ({
   name,
   streak,
   friendsCount,
+  isSnipingEnabled = false,
+  user_id,
 }: ProfileHeaderProps) => {
+  const currentUser = useCurrentUser();
+
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
-  const [isSwitchOn, setIsSwitchOn] = React.useState(false);
 
-  const onToggleSwitch = () => setIsSwitchOn(!isSwitchOn);
+  const [isSwitchOn, setIsSwitchOn] = React.useState(isSnipingEnabled);
+
+  const updateUserSnipingStatus = async (isEnabled: boolean) => {
+    if (!currentUser?.uid) return;
+
+    const userDocRef = doc(FIREBASE_STORE, 'Users', currentUser.uid);
+
+    try {
+      await updateDoc(userDocRef, {
+        isSnipingEnabled: isEnabled,
+      });
+      console.log('Updated sniping status successfully');
+    } catch (error) {
+      console.error('Error updating sniping status:', error);
+    }
+  };
+
+  const onToggleSwitch = () => {
+    const newSwitchValue = !isSwitchOn;
+    setIsSwitchOn(newSwitchValue);
+    updateUserSnipingStatus(newSwitchValue);
+  };
+
   return (
     <SafeAreaView style={styles.headerContainer}>
       <View style={styles.topContainer}>
@@ -38,13 +69,15 @@ const ProfileHeader = ({
             {username}
           </Text>
         </TouchableOpacity>
-        <IconButton
-          style={styles.settingsIcon}
-          icon="cog"
-          iconColor="white"
-          size={30}
-          onPress={() => navigation.navigate('Settings')}
-        />
+        {user_id === FIREBASE_AUTH.currentUser?.uid && (
+          <IconButton
+            style={styles.settingsIcon}
+            icon="cog"
+            iconColor="white"
+            size={30}
+            onPress={() => navigation.navigate('Settings')}
+          />
+        )}
       </View>
       <View style={styles.middleContainer}>
         <View style={styles.streakContainer}>
@@ -73,7 +106,6 @@ const ProfileHeader = ({
           </TouchableOpacity>
         </View>
         <View style={styles.nameContainer}>
-          {/* Conditionally render Avatar or Avatar.Icon */}
           {avatarUrl ? (
             <Avatar.Image source={{uri: avatarUrl}} size={110} />
           ) : (
@@ -98,7 +130,7 @@ const ProfileHeader = ({
             icon="target-account"
             iconColor="white"
             size={100}
-            onPress={() => navigation.navigate('Friends')}
+            onPress={() => navigation.push('Friends', {user_id: user_id})}
           />
           {typeof friendsCount === 'number' && (
             <TouchableOpacity
