@@ -10,7 +10,7 @@ const MESSAGETITLE = new Map<string, string>([
   ['sniped', 'You have been sniped!'],
   ['approved', 'Snipe approved'],
   ['rejected', 'Snipe rejected!'],
-  ['friend', 'Friend requeset'],
+  ['friend', 'Friend request'],
 ]);
 
 const MESSAGEBODY = new Map<string, string>([
@@ -70,7 +70,7 @@ export async function setToken(currentUser: any) {
 export function NotificationListener() {
   messaging().onNotificationOpenedApp(remoteMessage => {
     console.log(
-      'Notification cuased app to open from background state:',
+      'Notification caused app to open from background state:',
       remoteMessage.notification,
     );
   });
