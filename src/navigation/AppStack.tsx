@@ -19,15 +19,18 @@ import ProfileStackScreen from './ProfileStack';
 import { getToken, NotificationListener, requestUserPermission, setToken } from '../utils/pushnotification';
 import { UserContext } from '../contexts/UserContext';
 import {FIREBASE_AUTH} from '../../firebase';
+import { Platform } from 'react-native';
 
 const Tab = createBottomTabNavigator();
 function AppStack(): React.JSX.Element {
   const currentUser = useContext(UserContext);
   useEffect(() => {
-    requestUserPermission();
-    NotificationListener();
-    getToken();
-    setToken(currentUser);
+    if (Platform.OS == "android") {
+      requestUserPermission();
+      NotificationListener();
+      getToken();
+      setToken(currentUser);
+    }
   }, [])
   return (
     <NavigationContainer>
