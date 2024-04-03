@@ -6,6 +6,18 @@ import { UserContext } from '../contexts/UserContext';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { PermissionsAndroid } from 'react-native';
 
+const MESSAGETITLE = new Map<string, string>([
+    ["sniped", "You have been sniped!"],
+    ["approved", "Snipe approved"],
+    ["rejected", "Snipe rejected!"]
+]);
+
+const MESSAGEBODY = new Map<string, string>([
+    ["sniped", "sniped you! Approve to post this snipe."],
+    ["approved", "approved your snipe! Snipe has been posted."],
+    ["rejected", "rejected your snipe! Snipe has been deleted"]
+]);
+
 export async function requestUserPermission() {
     const authStatus = await messaging().requestPermission();
     const enabled =
@@ -69,17 +81,22 @@ export function NotificationListener(){
     })
 }
 
-export const sendNotification = async ({target_id, title, body}: {target_id:string, title:string, body:string}) => {
+// Target_id : the uid of the user that you want to send notifications to.
+// Title: string text
+// body: string text
+export const sendNotification = async ({target_id, sender_id, message_type}: {target_id:string, sender_id:string, message_type:string}) => {
     const usersRef = doc(FIREBASE_STORE, 'Users', target_id);
     const docSnap = await getDoc(usersRef);
     let to = '';
     if (docSnap.exists()) {
         to = docSnap.data().device_token;
     }
+
+    const senderName = await getUsername(sender_id);
     const key = 'AAAAKdWzAgE:APA91bGlOTp7xoTGh4U-WrrOgtsbrJ2Qpq-y_Cw_izt1OoKUseBObRr3HlB7y7Opbomtqp03EHcvPJVn5wc-3byOveFL9wWCR_jXIiBKlA1Ud8YigzZ9y_RAA2URFl_81YNt92lka5I-';
     const notification = {
-    'title': title,
-    'body': body,
+    'title': MESSAGETITLE.get(message_type),
+    'body': `${senderName} ${MESSAGEBODY.get(message_type)}`
     };
 
     fetch('https://fcm.googleapis.com/fcm/send', {
@@ -98,3 +115,15 @@ export const sendNotification = async ({target_id, title, body}: {target_id:stri
     console.error(error);
     })
 };
+
+export const getUsername = async (userId:string) => {
+    const usersRef = doc(FIREBASE_STORE, 'Users', userId);
+    try {
+        const docSnap = await getDoc(usersRef);
+        if (docSnap.exists()) {
+            return docSnap.data().username;
+        }
+    } catch (err) {
+        console.log("Error getting username:", err)
+    }
+}

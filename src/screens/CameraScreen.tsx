@@ -8,7 +8,8 @@ import { FIREBASE_STORAGE, FIREBASE_STORE } from '../../firebase';
 import { UserContext } from '../contexts/UserContext';
 import { User } from 'firebase/auth';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { sendNotification } from '../utils/pushnotification';
+import { getUsername, sendNotification } from '../utils/pushnotification';
+import useUserData from '../utils/getUserData';
 
 const CameraScreen = () => {
   const currentUser = useContext(UserContext) as User | null;
@@ -138,8 +139,8 @@ const CameraScreen = () => {
 
     const notification = {
       target_id: currentTarget,
-      title: 'You have been sniped!',
-      body: `${currentUser.uid} SNIPED you! Approve to post your snipe.`,
+      sender_id: currentUser.uid,
+      message_type: 'sniped'
     }
     sendNotification(notification);
   }

@@ -5,6 +5,7 @@ import { Snipe } from '../types/Snipe';
 import { FIREBASE_STORAGE, FIREBASE_STORE } from '../../firebase';
 import { deleteDoc, doc, getDoc, updateDoc } from 'firebase/firestore';
 import { deleteObject, ref } from 'firebase/storage';
+import { getUsername, sendNotification } from '../utils/pushnotification';
 
 type Props = {
   unapprovedSnipes: Array<Snipe>;
@@ -37,6 +38,13 @@ const ApprovalScreen = (props: Props) => {
     try {
       await updateDoc(snipeRef, { approved: true });
 
+      const notification = {
+        target_id: currentSnipe.sniper_id,
+        sender_id: currentSnipe.target_id,
+        message_type: 'approved'
+      }
+      sendNotification(notification);
+
       // Remove the snipe from the unapprovedSnipes array
       props.setUnapprovedSnipes(props.unapprovedSnipes.filter(snipe => snipe.id !== currentSnipe.id));
     } catch {
@@ -52,6 +60,13 @@ const ApprovalScreen = (props: Props) => {
       await deleteDoc(snipeRef);
 
       deleteObject(ref(FIREBASE_STORAGE, currentSnipe.image));
+
+      const notification = {
+        target_id: currentSnipe.sniper_id,
+        sender_id: currentSnipe.target_id,
+        message_type: 'rejected'
+      }
+      sendNotification(notification);
 
       // Remove the snipe from the unapprovedSnipes array
       props.setUnapprovedSnipes(props.unapprovedSnipes.filter(snipe => snipe.id !== currentSnipe.id));

@@ -1,6 +1,7 @@
 import {User} from '@firebase/auth';
 import {FIREBASE_STORE} from '../../firebase';
 import {collection, doc, setDoc} from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const storeUserInFirestore = async (
   user: User,
@@ -12,6 +13,7 @@ const storeUserInFirestore = async (
   try {
     const usersCollection = collection(FIREBASE_STORE, 'Users');
     const userRef = doc(usersCollection, uid);
+    const token = await AsyncStorage.getItem("notifToken");
 
     await setDoc(userRef, {
       email,
@@ -20,6 +22,7 @@ const storeUserInFirestore = async (
       avatar_url: null,
       streak: 0,
       friendsCount: 0,
+      device_token: token
     });
   } catch (error) {
     console.error('Error storing user in Firestore:', error);
