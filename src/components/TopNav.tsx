@@ -13,6 +13,7 @@ const TopNav = () => {
         icon={'account-plus'}
         size={30}
         iconColor={MD3Colors.neutral90}
+        onPress={() => navigation.navigate('AddFriend')}
       />
       <Text style={styles.title}>SNIPEME</Text>
       <TouchableOpacity onPress={() => navigation.navigate('Notification')}>

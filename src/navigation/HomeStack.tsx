@@ -19,6 +19,7 @@ import {FIREBASE_AUTH} from '../../firebase';
 import FriendsScreen from '../screens/FriendsScreen';
 import PlusHeader from '../components/PlusHeader';
 import {COLORS} from '../assets/Colors';
+import AddFriendScreen from '../screens/AddFriendScreen';
 
 const Stack = createNativeStackNavigator<HomeStackParamList>();
 
@@ -37,6 +38,31 @@ const HomeStack = () => {
           headerTitle: '',
         }}
         component={PostDetail}
+      />
+      <Stack.Screen
+        options={() => ({
+          headerTitle: '',
+          headerLeft: () => {
+            const index = useNavigationState(state => state.index);
+            if (index === 0) {
+              return null;
+            }
+            return <ArrowHeader />;
+          },
+        })}
+        name="ProfileMain"
+        component={ProfileScreen}
+        initialParams={{user_id: currentUserID}}
+      />
+      <Stack.Screen
+        name="AddFriend"
+        options={{
+          headerTransparent: true,
+          headerLeft: () => <ArrowHeader />,
+          headerTitle: 'Add a Friend',
+          headerTintColor: COLORS.white,
+        }}
+        component={AddFriendScreen}
       />
       <Stack.Screen
         name="Main"

@@ -22,6 +22,8 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {StackParamList} from '../types/StackParamList';
 import {FIREBASE_STORAGE} from '../../firebase';
 import {getDownloadURL, ref} from 'firebase/storage';
+import { UserContext } from '../contexts/UserContext';
+import { User } from 'firebase/auth';
 
 export interface ITSnipe {
   id: string;
@@ -36,24 +38,31 @@ export interface ITSnipe {
   timestamp: Timestamp;
 }
 
-const Post = ({snipe, navigation}: {snipe: ITSnipe; navigation: any}) => {
-  const [imageUrl, setImageUrl] = React.useState('');
-  const convertTimestamp = (timestamp: Timestamp) => {
-    const millisecondsAgo = new Date().getTime() - timestamp.toMillis();
-    const minutesAgo = Math.floor(millisecondsAgo / (1000 * 60));
+const Post = ({snipe, navigation, onPressButton}:{snipe: ITSnipe, navigation: any, onPressButton:any}) => {
+    const currentUser = React.useContext(UserContext) as User | null;
+    const [isOwner, setIsOwner] = React.useState(false);
+    const [imageUrl, setImageUrl] = React.useState("");
 
-    if (minutesAgo < 1) {
-      return 'Just now';
-    } else if (minutesAgo >= 10080) {
-      return `${Math.floor(minutesAgo / 60 / 24 / 7)}w`;
-    } else if (minutesAgo >= 1440) {
-      return `${Math.floor(minutesAgo / 60 / 24)}d`;
-    } else if (minutesAgo >= 60) {
-      return `${Math.floor(minutesAgo / 60)}hr`;
-    } else {
-      return `${minutesAgo}m`;
-    }
-  };
+    const convertTimestamp = (timestamp : Timestamp) => {
+        const millisecondsAgo = new Date().getTime() - timestamp.toMillis();
+        const minutesAgo = Math.floor(millisecondsAgo / (1000 * 60));
+    
+        if (minutesAgo < 1) {
+            return 'Just now';
+        }
+        else if (minutesAgo >= 10080) {
+            return `${Math.floor(((minutesAgo/60)/24)/7)}w`
+        }
+        else if (minutesAgo >= 1440) {
+            return `${Math.floor((minutesAgo/60)/24)}d`
+        }
+        else if (minutesAgo >= 60) {
+            return `${Math.floor(minutesAgo/60)}hr`
+        }
+        else {
+            return `${minutesAgo}m`;
+        }
+    };
 
   const getImageUrl = async (avatar_url: string) => {
     const storage = FIREBASE_STORAGE;
@@ -66,42 +75,46 @@ const Post = ({snipe, navigation}: {snipe: ITSnipe; navigation: any}) => {
     }
   };
 
-  React.useEffect(() => {
-    getImageUrl(snipe.target_avatar_url);
-  }, []);
-  return (
-    <Card style={styles.card}>
-      <View>
-        <Card.Title
-          titleStyle={styles.title}
-          title={snipe.target_username}
-          subtitleStyle={styles.title}
-          subtitle={`Sniped by ${snipe.sniper_username} • ${convertTimestamp(
-            snipe.timestamp,
-          )}`}
-          leftStyle={{backgroundColor: COLORS.BACKGROUND, marginLeft: -10}}
-          left={() => {
-            return imageUrl == '' ? (
-              <Avatar.Icon
-                size={46}
-                icon="account"
-                style={{backgroundColor: '#676767'}}
-              />
-            ) : (
-              <Avatar.Image size={46} source={{uri: imageUrl}} />
-            );
-          }}
-          right={props => (
-            <IconButton {...props} icon="dots-horizontal" onPress={() => {}} />
-          )}
-        />
-      </View>
-      <TouchableWithoutFeedback
-        onPress={() => navigation.navigate('Detail', {snipe})}>
-        <Card.Cover source={{uri: snipe.image}} style={{height: 415}} />
-      </TouchableWithoutFeedback>
-    </Card>
-  );
+    const navigateToProfile = (friendId: string) => {
+        console.log(`Navigating to profile of friend with ID: ${friendId}`);
+        navigation.push('ProfileMain', {user_id: friendId});
+    };
+
+    const handleOnPress = () => {
+        onPressButton({delete:isOwner, postId: snipe.id});
+    }
+
+    React.useEffect(() => {
+        getImageUrl(snipe.target_avatar_url);
+        setIsOwner(currentUser?.uid == snipe.sniper_id)
+    }, [])
+    return (
+        <Card style={styles.card}>
+            <View>
+                <Card.Title
+                    title={<Text 
+                            style={styles.title}
+                            onPress={() => navigateToProfile(snipe.target_id)}
+                            >{snipe.target_username}</Text>} 
+                    subtitleStyle={styles.title}
+                    subtitle={<Text style={styles.subtitle}>
+                            Sniped by&nbsp;
+                            <Text style={styles.subtitle} onPress={() => navigateToProfile(snipe.sniper_id)}>{snipe.sniper_username}</Text> 
+                            &nbsp;• {convertTimestamp(snipe.timestamp)}
+                            </Text>}
+                    leftStyle={{backgroundColor:COLORS.BACKGROUND, marginLeft: -10}}
+                    left={() => {return imageUrl == "" ?
+                        <Avatar.Icon onTouchEnd={() => navigateToProfile(snipe.target_id)} size={46} icon="account" style={{backgroundColor: '#676767'}}/> :
+                        <Avatar.Image onTouchEnd={() => navigateToProfile(snipe.target_id)} size={46} source={{ uri: imageUrl }} />;
+                    }}
+                    right={(props) => <IconButton {...props} icon={isOwner ? "trash-can-outline" : "alert-circle-outline"} onPress={handleOnPress} />}
+                />
+            </View>
+            <TouchableWithoutFeedback onPress={() => navigation.navigate('Detail', {snipe})}>
+                <Card.Cover source={{ uri: snipe.image }} style={{height: 415}} />
+            </TouchableWithoutFeedback>
+        </Card>
+    )
 };
 
 const styles = StyleSheet.create({
@@ -113,7 +126,12 @@ const styles = StyleSheet.create({
   },
   title: {
     color: 'white',
+    fontSize: 18
   },
+  subtitle: {
+    color: 'white',
+    fontSize: 14
+  }
 });
 
 export default Post;
