@@ -1,13 +1,29 @@
 import {Timestamp} from 'firebase/firestore';
 import * as React from 'react';
-import { Dimensions, Image, StyleSheet, TouchableWithoutFeedback, View } from 'react-native';
-import { Avatar, Button, Card, Icon, IconButton, MD3Colors, Text } from 'react-native-paper';
-import { COLORS } from '../assets/Colors';
-import { FIREBASE_STORAGE } from '../../firebase';
-import { getDownloadURL, ref } from 'firebase/storage';
+import {
+  Dimensions,
+  Image,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from 'react-native';
+import {
+  Avatar,
+  Button,
+  Card,
+  Icon,
+  IconButton,
+  MD3Colors,
+  Text,
+} from 'react-native-paper';
+import {COLORS} from '../assets/Colors';
+import {useNavigation} from '@react-navigation/native';
+import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {StackParamList} from '../types/StackParamList';
+import {FIREBASE_STORAGE} from '../../firebase';
+import {getDownloadURL, ref} from 'firebase/storage';
 import { UserContext } from '../contexts/UserContext';
 import { User } from 'firebase/auth';
-
 
 export interface ITSnipe {
   id: string;
@@ -21,7 +37,6 @@ export interface ITSnipe {
   sniper_avatar_url: string;
   timestamp: Timestamp;
 }
-
 
 const Post = ({snipe, navigation, onPressButton}:{snipe: ITSnipe, navigation: any, onPressButton:any}) => {
     const currentUser = React.useContext(UserContext) as User | null;
@@ -49,16 +64,16 @@ const Post = ({snipe, navigation, onPressButton}:{snipe: ITSnipe, navigation: an
         }
     };
 
-    const getImageUrl = async (avatar_url: string) => {
-        const storage = FIREBASE_STORAGE;
-        const imageRef = ref(storage, avatar_url);
-        try {
-          const url = await getDownloadURL(imageRef);
-          setImageUrl(url);
-        } catch (error) {
-          console.error('Error getting download URL:', error);
-        }
-    };
+  const getImageUrl = async (avatar_url: string) => {
+    const storage = FIREBASE_STORAGE;
+    const imageRef = ref(storage, avatar_url);
+    try {
+      const url = await getDownloadURL(imageRef);
+      setImageUrl(url);
+    } catch (error) {
+      console.error('Error getting download URL in Post:', error);
+    }
+  };
 
     const navigateToProfile = (friendId: string) => {
         console.log(`Navigating to profile of friend with ID: ${friendId}`);
@@ -107,7 +122,7 @@ const styles = StyleSheet.create({
     // backgroundColor: '#562e2e',
     backgroundColor: COLORS.BACKGROUND,
     marginTop: 8,
-    marginBottom: 16
+    marginBottom: 16,
   },
   title: {
     color: 'white',
