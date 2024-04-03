@@ -23,6 +23,7 @@ const PasswordScreen = () => {
   const email = route.params?.email;
   const username = route.params?.username;
   const name = route.params?.name;
+  const zipcode = route.params?.zipcode;
   const [password, setPassword] = useState('');
   const [agree, setAgree] = useState(false);
   const [passwordError, setPasswordError] = useState('');
@@ -33,7 +34,7 @@ const PasswordScreen = () => {
     const auth = FIREBASE_AUTH;
     try {
       // create user with email and password
-      if (email && username && name) {
+      if (email && username && name && zipcode) {
         const userCredential = await createUserWithEmailAndPassword(
           auth,
           email,
@@ -42,7 +43,12 @@ const PasswordScreen = () => {
 
         // store user data in firestore
         if (userCredential.user) {
-          await storeUserInFirestore(userCredential.user, username, name);
+          await storeUserInFirestore(
+            userCredential.user,
+            username,
+            name,
+            zipcode,
+          );
         }
       }
 

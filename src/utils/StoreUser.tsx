@@ -7,6 +7,7 @@ const storeUserInFirestore = async (
   user: User,
   username: string,
   name: string,
+  zipcode: string,
 ) => {
   const {uid, email} = user;
 
@@ -21,6 +22,7 @@ const storeUserInFirestore = async (
       email,
       username,
       name,
+      zipcode,
       avatar_url: null,
       streak: 0,
       friendsCount: 0,

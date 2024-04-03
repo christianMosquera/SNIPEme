@@ -33,10 +33,11 @@ const SignUpScreen = () => {
   }, [fullName, email, username, validUsername, validEmail]);
 
   const handleScreenChange = async () => {
-    navigation.navigate('Password', {
+    navigation.navigate('ZipCode', {
       name: fullName,
       username: username,
       email: email,
+      zipcode: '',
     });
   };
 

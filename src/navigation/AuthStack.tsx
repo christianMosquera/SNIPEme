@@ -17,6 +17,7 @@ import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import {StackParamList} from '../types/StackParamList';
 import PasswordScreen from '../screens/PasswordScreen';
 import ArrowHeader from '../components/ArrowHeader';
+import ZipCodeScreen from '../screens/ZipCodeScreen';
 
 const Stack = createNativeStackNavigator<StackParamList>();
 
@@ -61,6 +62,13 @@ const AuthStack = () => {
             headerTitle: '',
           }}
           component={ForgotPasswordScreen}
+        />
+        <Stack.Screen
+          name="ZipCode"
+          options={{
+            headerTitle: '',
+          }}
+          component={ZipCodeScreen}
         />
       </Stack.Navigator>
     </NavigationContainer>
