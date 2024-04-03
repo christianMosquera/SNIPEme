@@ -24,7 +24,7 @@ const storeUserInFirestore = async (
       avatar_url: null,
       streak: 0,
       friendsCount: 0,
-      device_token: token
+      device_token: token,
       isSnipingEnabled: true,
     });
 
