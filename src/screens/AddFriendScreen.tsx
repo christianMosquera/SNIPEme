@@ -30,6 +30,7 @@ import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Avatar} from 'react-native-paper';
+import {sendNotification} from '../utils/pushnotification';
 
 interface FriendType {
   id: string;
@@ -143,6 +144,12 @@ const AddFriendScreen = () => {
           return user;
         });
       });
+      const notification = {
+        target_id: clickedUserId,
+        sender_id: currentUserId,
+        message_type: 'Friend Request',
+      };
+      sendNotification(notification);
     }
   };
 
