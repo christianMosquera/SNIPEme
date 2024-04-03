@@ -1,5 +1,5 @@
 const { initializeApp } = require('firebase/app');
-const { getFirestore, doc, getDoc, collection, getDocs, query } = require('firebase/firestore');
+const { getFirestore, doc, collection, getDocs, query, writeBatch } = require('firebase/firestore');
 
 const main = async () => {
   // Initialize Firebase Access
@@ -21,25 +21,25 @@ const main = async () => {
   const friendMap = (await getDocs(usersQuery)).docs.map((doc) => {
     return { id: doc.id, friends: doc.data().friends};
   });
-  
+
   // Assign targets to each user
-  let targetCollection = [];
+  const batch = writeBatch(FIREBASE_STORE);
   for (let i = 0; i < friendMap.length; i++) {
-    // Address each user
     const user = friendMap[i];
     const friendCount = user.friends.length;
+    const targetRef = doc(FIREBASE_STORE, "Targets", user.id);
     
     if (friendCount === 0) {
       // If they have no friends, they get no target
-      targetCollection.push({ id: user.id, target: "" });
+      batch.set(targetRef, { target_id: "" }, { merge: true });
     } else {
       // Otherwise, assign a random target
       const target = user.friends[Math.floor(Math.random() * friendCount)];
-      targetCollection.push({ id: user.id, target });
+      batch.set(targetRef, { target_id: target }, { merge: true });
     }
   }
 
-  console.log(targetCollection);
+  await batch.commit();
 }
 
 main()
