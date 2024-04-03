@@ -40,21 +40,6 @@ const HomeStack = () => {
         component={PostDetail}
       />
       <Stack.Screen
-        options={() => ({
-          headerTitle: '',
-          headerLeft: () => {
-            const index = useNavigationState(state => state.index);
-            if (index === 0) {
-              return null;
-            }
-            return <ArrowHeader />;
-          },
-        })}
-        name="ProfileMain"
-        component={ProfileScreen}
-        initialParams={{user_id: currentUserID}}
-      />
-      <Stack.Screen
         name="AddFriend"
         options={{
           headerTransparent: true,
