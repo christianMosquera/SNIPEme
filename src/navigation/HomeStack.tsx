@@ -12,7 +12,8 @@ import {HomeStackParamList} from '../types/HomeStackParamList';
 import PostDetail from '../components/PostDetail';
 import ArrowHeader from '../components/ArrowHeader';
 import HomeScreen from '../screens/HomeScreen';
-import NotificationsScreen from '../screens/NotificationsScreen';
+import FriendRequestScreen from '../screens/FriendRequestScreen';
+import NotificationScreen from '../screens/NotificationScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import {useNavigationState} from '@react-navigation/native';
 import {FIREBASE_AUTH} from '../../firebase';
@@ -55,6 +56,16 @@ const HomeStack = () => {
         component={HomeScreen}
       />
       <Stack.Screen
+        name="FriendRequest"
+        options={{
+          headerTransparent: true,
+          headerLeft: () => <ArrowHeader />,
+          headerTitle: 'Friend Requests',
+          headerTintColor: COLORS.white,
+        }}
+        component={FriendRequestScreen}
+      />
+      <Stack.Screen
         name="Notification"
         options={{
           headerTransparent: true,
@@ -62,7 +73,7 @@ const HomeStack = () => {
           headerTitle: 'Notifications',
           headerTintColor: COLORS.white,
         }}
-        component={NotificationsScreen}
+        component={NotificationScreen}
       />
       <Stack.Screen
         options={() => ({
