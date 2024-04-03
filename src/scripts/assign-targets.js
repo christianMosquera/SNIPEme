@@ -16,10 +16,25 @@ const main = async () => {
   const FIREBASE_STORE = getFirestore(FIREBASE_APP);
 
   // Get a list of all users and their friends
-  const usersRef = collection(FIREBASE_STORE, 'Friends');
+  const friendsListRef = collection(FIREBASE_STORE, 'Friends');
+  const friendsListQuery = query(friendsListRef);
+  const friendMap = (await getDocs(friendsListQuery)).docs.map((doc) => {
+    return { id: doc.id, friends: doc.data().friends, zipcode: null};
+  });
+
+  // Get the zipcodes of all users
+  const usersRef = collection(FIREBASE_STORE, 'Users');
   const usersQuery = query(usersRef);
-  const friendMap = (await getDocs(usersQuery)).docs.map((doc) => {
-    return { id: doc.id, friends: doc.data().friends};
+  await getDocs(usersQuery).then((snapshot) => {
+    snapshot.docs.forEach((doc) => {
+      const friendEntry = friendMap.find((user) => user.id === doc.id);
+      if (friendEntry) friendMap.find((user) => user.id === doc.id).zipcode = doc.data().zipcode;
+    });
+  });
+
+  // Filter each user's friends to match the user's zipcode
+  friendMap.forEach((user) => {
+    user.friends = user.friends.filter((friend) => friendEntry = friendMap.find((user) => user.id === friend).zipcode === user.zipcode);
   });
 
   // Assign targets to each user
