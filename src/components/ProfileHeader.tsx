@@ -10,7 +10,6 @@ import {doc, updateDoc} from 'firebase/firestore';
 import {FIREBASE_STORE, FIREBASE_AUTH} from '../../firebase';
 import {useCurrentUser} from '../contexts/UserContext';
 
-
 type ProfileHeaderProps = {
   avatarUrl: string | null;
   username?: string;
@@ -66,7 +65,7 @@ const ProfileHeader = ({
           style={styles.touchable}
           onPress={() => console.log('Username Text Button Pressed')}>
           <Text style={styles.text} variant="titleMedium">
-            {username}
+            @{username}
           </Text>
         </TouchableOpacity>
         {user_id === FIREBASE_AUTH.currentUser?.uid && (
@@ -80,7 +79,7 @@ const ProfileHeader = ({
         )}
       </View>
       <View style={styles.middleContainer}>
-        <View style={styles.streakContainer}>
+        {/* <View style={styles.streakContainer}>
           <IconButton
             style={styles.middleContainerIcons}
             icon="fire"
@@ -104,7 +103,8 @@ const ProfileHeader = ({
               Streak
             </Text>
           </TouchableOpacity>
-        </View>
+        </View> */}
+
         <View style={styles.nameContainer}>
           {avatarUrl ? (
             <Avatar.Image source={{uri: avatarUrl}} size={110} />
@@ -124,18 +124,28 @@ const ProfileHeader = ({
             </Text>
           </TouchableOpacity>
         </View>
+        <View style={styles.streakContainer}>
+          <Switch
+            color="#F39334"
+            value={isSwitchOn}
+            onValueChange={onToggleSwitch}
+          />
+          <Text style={styles.text} variant="bodyLarge">
+            Sniping Status
+          </Text>
+        </View>
         <View style={styles.friendsContainer}>
-          <IconButton
+          {/* <IconButton
             style={styles.middleContainerIcons}
             icon="target-account"
             iconColor="white"
             size={100}
             onPress={() => navigation.push('Friends', {user_id: user_id})}
-          />
+          /> */}
           {typeof friendsCount === 'number' && (
             <TouchableOpacity
               style={styles.touchable}
-              onPress={() => console.log('Friends Number Text Button Pressed')}>
+              onPress={() => navigation.push('Friends', {user_id: user_id})}>
               <Text style={styles.text} variant="titleMedium">
                 {friendsCount}
               </Text>
@@ -143,19 +153,19 @@ const ProfileHeader = ({
           )}
           <TouchableOpacity
             style={styles.touchable}
-            onPress={() => console.log('Friends Text Button Pressed')}>
-            <Text style={styles.text} variant="titleMedium">
+            onPress={() => navigation.push('Friends', {user_id: user_id})}>
+            <Text style={styles.text} variant="bodyLarge">
               Friends
             </Text>
           </TouchableOpacity>
         </View>
       </View>
-      <View style={styles.snipingStatusContainer}>
+      {/* <View style={styles.snipingStatusContainer}>
         <Text style={styles.text} variant="labelLarge">
           Sniping Status
         </Text>
         <Switch color="red" value={isSwitchOn} onValueChange={onToggleSwitch} />
-      </View>
+      </View> */}
     </SafeAreaView>
   );
 };
@@ -179,7 +189,9 @@ const styles = StyleSheet.create({
     // backgroundColor: 'purple',
     flexDirection: 'row',
     justifyContent: 'center',
+    alignItems: 'center',
     marginTop: 4,
+    marginBottom: 20,
   },
   streakContainer: {
     // backgroundColor: 'orange',
