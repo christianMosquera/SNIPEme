@@ -9,4 +9,4 @@ export type Snipe = {
     seconds: number;
     nanoseconds: number;
   };
-}
+};
