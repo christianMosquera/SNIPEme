@@ -69,7 +69,7 @@ const ProfileFeed = ({user_id}: ProfileFeedProps) => {
               id: doc.id,
               approved: data.approved,
               image: data.image,
-              image_url, // Assuming your documents have this field; adjust as necessary
+              image_url,
               target_id: data.target_id,
               sniper_id: data.sniper_id,
               timestamp: data.timestamp,
@@ -88,8 +88,7 @@ const ProfileFeed = ({user_id}: ProfileFeedProps) => {
         const snipesTakenSnapshot = await getDocs(snipesTakenQuery);
         const snipesTakenDataPromises = snipesTakenSnapshot.docs.map(
           async doc => {
-            const data = doc.data() as Omit<Snipe, 'image_url'>; // Cast the data to Snipe without 'image_url'
-            // Get the download URL for the image from Firebase Storage
+            const data = doc.data() as Omit<Snipe, 'image_url'>;
             const storageRef = ref(FIREBASE_STORAGE, data.image);
             const image_url = await getDownloadURL(storageRef);
             return {
@@ -122,20 +121,11 @@ const ProfileFeed = ({user_id}: ProfileFeedProps) => {
     textAlign: 'center' as 'center',
   });
 
-  // const renderItem = ({item}: ListRenderItemInfo<Snipe>) => (
-  //   // <View style={styles.imageContainer}>
-  //   <Image source={{uri: item.image_url}} style={styles.image} />
-  //   // </View>
-  // );
-
   const renderItem = ({item}: ListRenderItemInfo<Snipe>) => (
-    // <View style={styles.imageContainer}>
     <Image
       source={{uri: item.image_url}}
       style={{width: IMAGE_SIZE, height: IMAGE_SIZE, margin: MARGIN}}
     />
-
-    // </View>
   );
 
   return (
@@ -189,13 +179,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // backgroundColor: 'violet',
   },
-  // imageContainer: {
-  //   flex: 1,
-  //   flexDirection: 'column',
-  //   margin: 1,
-  // },
   image: {
-    // height: 100,
     flex: 1,
     aspectRatio: 1 / 1,
   },
