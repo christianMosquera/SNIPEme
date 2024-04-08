@@ -1,5 +1,5 @@
 const { initializeApp } = require('firebase/app');
-const { getFirestore, doc, collection, getDocs, query, writeBatch } = require('firebase/firestore');
+const { getFirestore, doc, getDoc, collection, getDocs, query, writeBatch } = require('firebase/firestore');
 
 const main = async () => {
   // Initialize Firebase Access
@@ -19,7 +19,7 @@ const main = async () => {
   const friendsListRef = collection(FIREBASE_STORE, 'Friends');
   const friendsListQuery = query(friendsListRef);
   const friendMap = (await getDocs(friendsListQuery)).docs.map((doc) => {
-    return { id: doc.id, friends: doc.data().friends, zipcode: null};
+    return { id: doc.id, friends: doc.data().friends, deviceToken: null, allowedToSnipe: null, zipcode: null, target: null};
   });
 
   // Get the zipcodes of all users
@@ -29,6 +29,7 @@ const main = async () => {
     snapshot.docs.forEach((doc) => {
       const friendEntry = friendMap.find((user) => user.id === doc.id);
       if (friendEntry) {
+        friendEntry.deviceToken = doc.data().device_token;
         friendEntry.zipcode = doc.data().zipcode;
         friendEntry.allowedToSnipe = doc.data().isSnipingEnabled;
       }
@@ -50,15 +51,53 @@ const main = async () => {
     
     if (friendCount === 0) {
       // If they have no friends, they get no target
-      batch.set(targetRef, { target_id: "" }, { merge: true });
+      batch.set(targetRef, { target_id: null }, { merge: true });
+      user.target = null;
     } else {
       // Otherwise, assign a random target
       const target = user.friends[Math.floor(Math.random() * friendCount)];
       batch.set(targetRef, { target_id: target }, { merge: true });
+      user.target = target;
     }
   }
 
   await batch.commit();
+
+  // Send a notification to every user
+  for (let i = 0; i < friendMap.length; i++) {
+    const user = friendMap[i];
+    const deviceToken = user.deviceToken;
+    if (!deviceToken || !user.target) continue;
+
+    const targetRef = doc(FIREBASE_STORE, "Users", user.target);
+    const target = (await getDoc(targetRef)).data().username;
+
+    // Prepare the notification
+    const key = 'AAAAKdWzAgE:APA91bGlOTp7xoTGh4U-WrrOgtsbrJ2Qpq-y_Cw_izt1OoKUseBObRr3HlB7y7Opbomtqp03EHcvPJVn5wc-3byOveFL9wWCR_jXIiBKlA1Ud8YigzZ9y_RAA2URFl_81YNt92lka5I-';
+    const notification = {
+      title: 'New Targets Assigned!',
+      body: target ? `Your target for today is ${target}!` : 'You have no target today.'
+    };
+
+    // Send the notification
+    await fetch('https://fcm.googleapis.com/fcm/send', {
+      method: 'POST',
+      headers: {
+        Authorization: 'key=' + key,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        notification: notification,
+        to: deviceToken,
+      }),
+    })
+    .then((response) => {
+      console.log("Got response", response.status, "when sending notification to", user.id);
+    })
+    .catch((error) => {
+      console.error("Error sending notification: ", error);
+    });
+  }
 }
 
 main()
