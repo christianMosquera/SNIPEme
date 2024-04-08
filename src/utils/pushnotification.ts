@@ -1,7 +1,7 @@
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FIREBASE_STORE} from '../../firebase';
-import {doc, getDoc, updateDoc} from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc} from 'firebase/firestore';
 import {PermissionsAndroid} from 'react-native';
 import { showMessage, hideMessage } from "react-native-flash-message";
 
@@ -9,7 +9,7 @@ type MessageType = "none" | "default" | "info" | "success" | "danger" | "warning
 
 const MESSAGETITLE = new Map<string, string>([
   ['sniped', 'You have been sniped!'],
-  ['approved', 'Snipe approved'],
+  ['approved', 'Snipe approved!'],
   ['rejected', 'Snipe rejected!'],
   ['friend', 'Friend request'],
 ]);
@@ -17,7 +17,14 @@ const MESSAGETITLE = new Map<string, string>([
 const MESSAGEBODY = new Map<string, string>([
   ['sniped', 'sniped you! Approve to post this snipe.'],
   ['approved', 'approved your snipe! Snipe has been posted.'],
-  ['rejected', 'rejected your snipe! Snipe has been deleted'],
+  ['rejected', 'rejected your snipe! Snipe has been deleted.'],
+  ['friend', 'requested to follow you.'],
+]);
+
+const DISPLAYMESSAGE = new Map<string, string>([
+  ['sniped', 'sniped you!'],
+  ['approved', 'approved your snipe!'],
+  ['rejected', 'rejected your snipe!'],
   ['friend', 'requested to follow you'],
 ]);
 
@@ -133,6 +140,22 @@ export const sendNotification = async ({
     title: MESSAGETITLE.get(message_type),
     body: `${senderName} ${MESSAGEBODY.get(message_type)}`,
   };
+
+  const notificationRef = doc(FIREBASE_STORE, 'Notifications', target_id);
+  const notifSnap = await getDoc(notificationRef);
+
+  if(!notifSnap.exists()) {
+    await setDoc(notificationRef, {Notifications:[]});
+  }
+  const currentArray = notifSnap.data()?.Notifications || [];
+  const newNotification = {
+    sender_id: sender_id,
+    message_type: message_type,
+    message: `${senderName} ${DISPLAYMESSAGE.get(message_type)}`
+  };
+  const updatedArray = [newNotification, ...currentArray];
+
+  await updateDoc(notificationRef, { Notifications: updatedArray });
 
   fetch('https://fcm.googleapis.com/fcm/send', {
     method: 'POST',

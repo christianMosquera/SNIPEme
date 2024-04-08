@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, { useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -22,9 +22,12 @@ import {FIREBASE_AUTH} from '../../firebase';
 import { Platform } from 'react-native';
 import FlashMessage from "react-native-flash-message";
 
+export const NotifContext = createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>]>([false, () => {}]);
+
 const Tab = createBottomTabNavigator();
 function AppStack(): React.JSX.Element {
   const currentUser = useContext(UserContext);
+  const [newNotification, setNewNotification] = useState(false);
   useEffect(() => {
     if (Platform.OS == "android") {
       requestUserPermission();
@@ -43,7 +46,6 @@ function AppStack(): React.JSX.Element {
         <Tab.Screen name="Camera" component={CameraScreen} />
         <Tab.Screen name="Profile" component={ProfileStackScreen} />
       </Tab.Navigator>
-      <FlashMessage position="top" />
     </NavigationContainer>
   );
 }
