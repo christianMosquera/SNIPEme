@@ -1,11 +1,11 @@
 import messaging from '@react-native-firebase/messaging';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {FIREBASE_STORE} from '../../firebase';
-import {useContext} from 'react';
-import {UserContext} from '../contexts/UserContext';
-import {arrayUnion, doc, getDoc, setDoc, updateDoc} from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc} from 'firebase/firestore';
 import {PermissionsAndroid} from 'react-native';
-import { NotifContext } from '../navigation/AppStack';
+import { showMessage, hideMessage } from "react-native-flash-message";
+
+type MessageType = "none" | "default" | "info" | "success" | "danger" | "warning";
 
 const MESSAGETITLE = new Map<string, string>([
   ['sniped', 'You have been sniped!'],
@@ -96,6 +96,21 @@ export function NotificationListener() {
 
   messaging().onMessage(async remoteMessage => {
     console.log('notification on foreground state', remoteMessage);
+    const title = remoteMessage.notification?.title;
+    const body = remoteMessage.notification?.body;
+    const type : MessageType = "default"
+    if (typeof(title) != 'string' || typeof(body) != 'string') return;
+    const notification = {
+      message: title,
+      description: body,
+      type: type,
+      backgroundColor: "white", // background color
+      color: "black", // text color
+      onPress: () => {
+        console.log("pressed!");
+      }
+    }
+    showMessage(notification);
   });
 }
 

@@ -20,6 +20,7 @@ import { getToken, NotificationListener, requestUserPermission, setToken } from 
 import { UserContext } from '../contexts/UserContext';
 import {FIREBASE_AUTH} from '../../firebase';
 import { Platform } from 'react-native';
+import FlashMessage from "react-native-flash-message";
 
 export const NotifContext = createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>]>([false, () => {}]);
 
@@ -36,18 +37,16 @@ function AppStack(): React.JSX.Element {
     }
   }, [])
   return (
-    <NotifContext.Provider value={[newNotification, setNewNotification]}>
-      <NavigationContainer>
-        <Tab.Navigator
-          screenOptions={{
-            headerShown: false,
-          }}>
-          <Tab.Screen name="Home" component={HomeStack} />
-          <Tab.Screen name="Camera" component={CameraScreen} />
-          <Tab.Screen name="Profile" component={ProfileStackScreen} />
-        </Tab.Navigator>
-      </NavigationContainer>
-    </NotifContext.Provider>
+    <NavigationContainer>
+      <Tab.Navigator
+        screenOptions={{
+          headerShown: false,
+        }}>
+        <Tab.Screen name="Home" component={HomeStack} />
+        <Tab.Screen name="Camera" component={CameraScreen} />
+        <Tab.Screen name="Profile" component={ProfileStackScreen} />
+      </Tab.Navigator>
+    </NavigationContainer>
   );
 }
 
