@@ -32,8 +32,29 @@ const CustomTabButton = ({children, onPress}:{children:any, onPress?:any}) => (
     onPress={onPress}
   >
     <View style={{
-      width: 70,
-      height:70,
+      width: 100,
+      height:100,
+      borderRadius: 35,
+      backgroundColor: 'transparent'
+    }}>
+      {children}
+
+    </View>
+
+  </TouchableOpacity>
+);
+
+const TabButton = ({children, onPress}:{children:any, onPress?:any}) => (
+  <TouchableOpacity
+    style = {{
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}
+    onPress={onPress}
+  >
+    <View style={{
+      width: 100,
+      height:100,
       borderRadius: 35,
       backgroundColor: 'transparent'
     }}>
@@ -71,7 +92,6 @@ function AppStack(): React.JSX.Element {
             borderColor: "transparent"
 
           },
-          // tabBarActiveBackgroundColor: "lightgreen",
           tabBarItemStyle: {
             borderRadius: 15
           }
@@ -94,11 +114,13 @@ function AppStack(): React.JSX.Element {
               />
             </View>
           ),
+          // tabBarButton: (props) => (
+          //   <TabButton {...props} />
+          // )
         }} />
 
 
-        <Tab.Screen name="Camera" component={CameraScreen} 
-          options={{
+        <Tab.Screen name="Camera" component={CameraScreen} options={{
             tabBarIcon: ({focused}) => (
               <View>
               <Image
@@ -109,16 +131,12 @@ function AppStack(): React.JSX.Element {
                   height:85,
                   tintColor: 'white',
                 }}
-
               />
               </View>
             ),
             tabBarButton: (props) => (
               <CustomTabButton {...props} />
             )
-            
-
-
           }}
         />
 
