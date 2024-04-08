@@ -3,8 +3,12 @@ import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {StyleSheet, View, TouchableOpacity} from 'react-native';
 import {IconButton, MD3Colors, Text} from 'react-native-paper';
 import {HomeStackParamList} from '../types/HomeStackParamList';
+import { useContext } from 'react';
+import { NotifContext } from '../navigation/AppStack';
+
 
 const TopNav = () => {
+  const [newNotif, setNewNotif]= useContext(NotifContext);
   const navigation =
     useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
   return (
@@ -17,7 +21,7 @@ const TopNav = () => {
       />
       <Text style={styles.title}>SNIPEME</Text>
       <TouchableOpacity onPress={() => navigation.navigate('Notification')}>
-        <IconButton icon={'bell'} iconColor={MD3Colors.neutral90} />
+        <IconButton icon={newNotif ? 'bell-badge' : 'bell'} iconColor={newNotif ? MD3Colors.error60: MD3Colors.neutral90} />
       </TouchableOpacity>
     </View>
   );

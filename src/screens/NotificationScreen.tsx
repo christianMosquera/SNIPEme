@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {View, Text, FlatList, SafeAreaView, StyleSheet, TouchableOpacity} from 'react-native';
 import {FIREBASE_AUTH, FIREBASE_STORAGE, FIREBASE_STORE} from '../../firebase';
-import { doc, getDoc } from 'firebase/firestore';
+import { doc, getDoc, onSnapshot } from 'firebase/firestore';
 import {getDownloadURL, ref} from 'firebase/storage';
 import FriendRequest from '../components/FriendRequest';
 import {COLORS} from '../assets/Colors';
@@ -28,13 +28,20 @@ const NotificationScreen = () => {
         if (!currentUser) return;
         try {
           const userRef = doc(FIREBASE_STORE, 'Notifications', currentUser?.uid);
-          const docSnap = await getDoc(userRef);
-  
-          setNotifications(docSnap.data()?.Notifications);
+          const unsubscribe = onSnapshot(userRef, (doc) => {
+            if (doc.exists()) {
+              const fetchedNotifications = doc.data()?.Notifications || [];
+              setNotifications(fetchedNotifications);
+            }
+          });
+          return () => unsubscribe();
         } catch (err) {
           console.error("get notification:", err)
         }
     }
+    const navigateToProfile = (friendId: string) => {
+      navigation.push('ProfileHome', {user_id: friendId});
+    };
 
     useEffect(() => {
         fetchNotifications();
@@ -53,7 +60,7 @@ const NotificationScreen = () => {
         <View style={styles.notificationContainer}>
             <FlatList
                 data={notifications}
-                renderItem={({item}) => <NotificationCard data={item}/>}
+                renderItem={({item}) => <TouchableOpacity onPress={() => navigateToProfile(item.sender_id)}><NotificationCard data={item}/></TouchableOpacity>}
             />
         </View>
         </SafeAreaView>

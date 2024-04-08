@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, { useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
@@ -21,9 +21,12 @@ import { UserContext } from '../contexts/UserContext';
 import {FIREBASE_AUTH} from '../../firebase';
 import { Platform } from 'react-native';
 
+export const NotifContext = createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>]>([false, () => {}]);
+
 const Tab = createBottomTabNavigator();
 function AppStack(): React.JSX.Element {
   const currentUser = useContext(UserContext);
+  const [newNotification, setNewNotification] = useState(false);
   useEffect(() => {
     if (Platform.OS == "android") {
       requestUserPermission();
@@ -33,16 +36,18 @@ function AppStack(): React.JSX.Element {
     }
   }, [])
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={{
-          headerShown: false,
-        }}>
-        <Tab.Screen name="Home" component={HomeStack} />
-        <Tab.Screen name="Camera" component={CameraScreen} />
-        <Tab.Screen name="Profile" component={ProfileStackScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
+    <NotifContext.Provider value={[newNotification, setNewNotification]}>
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+          }}>
+          <Tab.Screen name="Home" component={HomeStack} />
+          <Tab.Screen name="Camera" component={CameraScreen} />
+          <Tab.Screen name="Profile" component={ProfileStackScreen} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </NotifContext.Provider>
   );
 }
 
