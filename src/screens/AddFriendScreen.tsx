@@ -29,6 +29,8 @@ import {modifyFriendsCount} from '../utils/friendsCountUtil';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
+import {Avatar} from 'react-native-paper';
+import {sendNotification} from '../utils/pushnotification';
 
 interface FriendType {
   id: string;
@@ -38,6 +40,7 @@ interface FriendType {
   avatar_url: string;
   imageUrl: string;
   following: boolean;
+  requested: boolean;
 }
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
@@ -69,14 +72,13 @@ const AddFriendScreen = () => {
         if (userData.avatar_url) {
           imageUrl = await getImageUrl(userData.avatar_url);
         } else {
-          imageUrl = await getImageUrl(
-            'gs://snipeme-22003.appspot.com/avatar_photos/__no__account__/blank-profile-picture-973460_1280.webp',
-          );
+          imageUrl = null;
         }
         const following = await isFriend(userId);
-        return {...userData, id: doc.id, imageUrl, following};
+        const requested = await requesting(userId);
+        return {...userData, id: doc.id, imageUrl, following, requested};
       } catch (error) {
-        console.error('Error fetching image URL:', error);
+        console.error('Error fetching image URL in Add Friend Screen:', error);
         return {...userData, id: doc.id, imageUrl: null};
       }
     });
@@ -91,7 +93,7 @@ const AddFriendScreen = () => {
       const url = await getDownloadURL(imageRef);
       return url;
     } catch (error) {
-      console.error('Error getting download URL:', error);
+      console.error('Error getting download URL in Add Friend:', error);
     }
   };
 
@@ -105,52 +107,115 @@ const AddFriendScreen = () => {
           const dataArray = docSnap.data().friends;
           return dataArray.includes(userId);
         } else {
-          console.log('No such document!');
+          console.log(
+            `In AddFriendScreen, isFriend: Friends document for current user (${FIREBASE_AUTH.currentUser.uid}) does not exist.`,
+          );
           return false;
         }
       } catch (error) {
-        console.error('Error getting document:', error);
+        console.error(
+          `In AddFriendScreen, isFriend: Error checking friendship status for user ${userId} with current user ${FIREBASE_AUTH.currentUser.uid}:`,
+          error,
+        );
         return false;
       }
     }
   };
 
-  const follow = async (clickedUserId: string) => {
+  const followRequest = async (clickedUserId: string) => {
     if (FIREBASE_AUTH.currentUser) {
       const currentUserId = FIREBASE_AUTH.currentUser.uid;
-
-      const currentUserDocRef = doc(FIREBASE_STORE, 'Friends', currentUserId);
-      const currentUserDoc = await getDoc(currentUserDocRef);
-
       const clickedUserDocRef = doc(FIREBASE_STORE, 'Friends', clickedUserId);
       const clickedUserDoc = await getDoc(clickedUserDocRef);
 
-      if (!currentUserDoc.exists()) {
-        await setDoc(currentUserDocRef, {friends: []});
-      }
-
       if (!clickedUserDoc.exists()) {
-        await setDoc(clickedUserDocRef, {friends: []});
+        await setDoc(clickedUserDocRef, {friends: [], pendingRequests: []});
       }
 
-      await updateDoc(currentUserDocRef, {friends: arrayUnion(clickedUserId)});
-      await modifyFriendsCount(currentUserId, 1);
+      await updateDoc(clickedUserDocRef, {
+        pendingRequests: arrayUnion(currentUserId),
+      });
 
-      await updateDoc(clickedUserDocRef, {friends: arrayUnion(currentUserId)});
-      await modifyFriendsCount(clickedUserId, 1);
+      setUsers(prevUsers => {
+        return prevUsers.map(user => {
+          if (user.id === clickedUserId) {
+            return {...user, requested: true};
+          }
+          return user;
+        });
+      });
+      const notification = {
+        target_id: clickedUserId,
+        sender_id: currentUserId,
+        message_type: 'friend',
+      };
+      sendNotification(notification);
+    }
+  };
+
+  const unRequest = async (clickedUserId: string) => {
+    if (FIREBASE_AUTH.currentUser) {
+      const currentUserId = FIREBASE_AUTH.currentUser.uid;
+      const clickedUserDocRef = doc(FIREBASE_STORE, 'Friends', clickedUserId);
+
+      await updateDoc(clickedUserDocRef, {
+        pendingRequests: arrayRemove(currentUserId),
+      });
+
+      setUsers(prevUsers => {
+        return prevUsers.map(user => {
+          if (user.id === clickedUserId) {
+            return {...user, requested: false};
+          }
+          return user;
+        });
+      });
+    }
+  };
+
+  const requesting = async (userId: string) => {
+    if (FIREBASE_AUTH.currentUser) {
+      const currentUid = FIREBASE_AUTH.currentUser.uid;
+      const store = FIREBASE_STORE;
+      try {
+        const docRef = doc(store, 'Friends', userId);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          const dataArray = docSnap.data().pendingRequests;
+          return dataArray.includes(currentUid);
+        } else {
+          console.log(
+            `In AddFriendScreen, requesting: No document found for user ID ${userId} in Friends collection. No pending requests can exist.`,
+          );
+          return false;
+        }
+      } catch (error) {
+        console.error(
+          `In AddFriendScreen, requesting: Error accessing Friends document for user ID ${userId} (checking from current user ID ${currentUid}):`,
+          error,
+        );
+        return false;
+      }
     }
   };
 
   const handleFollow = async (user_id: string) => {
     if (await isFriend(user_id)) {
       return unfollow(user_id);
+    } else if (await requesting(user_id)) {
+      return unRequest(user_id);
     } else {
-      return follow(user_id);
+      followRequest(user_id);
     }
   };
 
   const unfollow = async (friend_id: string) => {
     if (FIREBASE_AUTH.currentUser) {
+      const updatedUsers = users.map(user =>
+        user.id === friend_id ? {...user, following: false} : user,
+      );
+      setUsers(updatedUsers);
+
       const current_uid = FIREBASE_AUTH.currentUser.uid;
       const userDocRef = doc(FIREBASE_STORE, 'Friends', current_uid);
       const friendDocRef = doc(FIREBASE_STORE, 'Friends', friend_id);
@@ -167,17 +232,39 @@ const AddFriendScreen = () => {
     }
   };
 
+  const getButtonText = (item: FriendType): string => {
+    if (item.following) {
+      return 'Following';
+    } else if (item.requested) {
+      return 'Requested';
+    } else {
+      return 'Follow';
+    }
+  };
+
+  const getButtonColor = (item: FriendType): string => {
+    if (item.following || item.requested) {
+      return 'gray';
+    } else {
+      return 'blue';
+    }
+  };
+
   const renderUserItem = ({item}: {item: FriendType}) => (
     <TouchableOpacity
       style={styles.friendContainer}
       onPress={() => navigateToProfile(item.id)}>
       <View style={styles.friendInfo}>
-        <Image
-          style={styles.image}
-          source={{
-            uri: item.imageUrl,
-          }}
-        />
+        {item.imageUrl ? (
+          <Avatar.Image source={{uri: item.imageUrl}} size={75} />
+        ) : (
+          <Avatar.Icon
+            style={styles.avatar}
+            size={75}
+            color="white"
+            icon="account"
+          />
+        )}
         <View style={styles.textContainer}>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.name}>
             {item.name}
@@ -190,11 +277,9 @@ const AddFriendScreen = () => {
           onPress={() => handleFollow(item.id)}
           style={[
             styles.followButton,
-            {backgroundColor: item.following ? 'gray' : 'blue'},
+            {backgroundColor: getButtonColor(item)},
           ]}>
-          <Text style={styles.followButtonText}>
-            {item.following ? 'Following' : 'Follow'}
-          </Text>
+          <Text style={styles.followButtonText}>{getButtonText(item)}</Text>
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -257,16 +342,16 @@ const styles = StyleSheet.create({
     color: COLORS.white,
   },
   followButton: {
-    width: 90, // Adjust as needed
-    height: 30, // Adjust as needed
+    width: 90,
+    height: 30,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 5,
-    backgroundColor: 'gray', // Default color
+    backgroundColor: 'gray',
   },
   followButtonText: {
     color: 'white',
-    textAlign: 'center', // Center text horizontally
+    textAlign: 'center',
   },
   searchInput: {
     height: 40,
@@ -300,6 +385,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     overflow: 'hidden',
     color: COLORS.white,
+  },
+  avatar: {
+    backgroundColor: 'gray',
   },
 });
 export default AddFriendScreen;

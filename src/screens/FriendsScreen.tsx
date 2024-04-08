@@ -26,6 +26,7 @@ import {modifyFriendsCount} from '../utils/friendsCountUtil';
 import {RouteProp, useNavigation, useRoute} from '@react-navigation/native';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
+import {Avatar} from 'react-native-paper';
 
 interface FriendType {
   id: string;
@@ -69,11 +70,24 @@ const FriendsScreen = () => {
               if (friendDocSnap.exists()) {
                 const friendData = friendDocSnap.data();
                 try {
-                  const imageUrl = await getImageUrl(friendData.avatar_url);
-                  const following = await isFriend(friendId);
-                  return {id: friendId, ...friendData, imageUrl, following};
+                  if (friendData.avatar_url) {
+                    const imageUrl = await getImageUrl(friendData.avatar_url);
+                    const following = await isFriend(friendId);
+                    return {id: friendId, ...friendData, imageUrl, following};
+                  } else {
+                    const following = await isFriend(friendId);
+                    return {
+                      id: friendId,
+                      ...friendData,
+                      imageUrl: null,
+                      following,
+                    };
+                  }
                 } catch (error) {
-                  console.error('Error fetching image URL:', error);
+                  console.error(
+                    'Error fetching image URL in Friends screen:',
+                    error,
+                  );
                   return {id: friendId, ...friendData, imageUrl: null};
                 }
               }
@@ -107,7 +121,10 @@ const FriendsScreen = () => {
       const url = await getDownloadURL(imageRef);
       return url;
     } catch (error) {
-      console.error('Error getting download URL:', error);
+      console.error(
+        `In FriendScreen, getImageUrl: Error getting download URL for avatar: ${avatar_url}`,
+        error,
+      );
     }
   };
 
@@ -139,11 +156,16 @@ const FriendsScreen = () => {
           const dataArray = docSnap.data().friends;
           return dataArray.includes(userId);
         } else {
-          console.log('No such document!');
+          console.log(
+            'In FriendsScreen, isFriend: Friend list document for current user does not exist.',
+          );
           return false;
         }
       } catch (error) {
-        console.error('Error getting document:', error);
+        console.error(
+          `In FriendsScreen, isFriend: Error checking if user ${userId} is a friend.`,
+          error,
+        );
         return false;
       }
     }
@@ -192,12 +214,16 @@ const FriendsScreen = () => {
       style={styles.friendContainer}
       onPress={() => navigateToProfile(item.id)}>
       <View style={styles.friendInfo}>
-        <Image
-          style={styles.image}
-          source={{
-            uri: item.imageUrl,
-          }}
-        />
+        {item.imageUrl ? (
+          <Avatar.Image source={{uri: item.imageUrl}} size={75} />
+        ) : (
+          <Avatar.Icon
+            style={styles.avatar}
+            size={75}
+            color="white"
+            icon="account"
+          />
+        )}
         <View style={styles.textContainer}>
           <Text numberOfLines={1} ellipsizeMode="tail" style={styles.name}>
             {item.name}
@@ -274,18 +300,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  friendName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.white,
-  },
   followButton: {
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+    width: 90,
+    height: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
     borderRadius: 5,
+    backgroundColor: 'gray',
   },
   followButtonText: {
     color: 'white',
+    textAlign: 'center',
   },
   searchInput: {
     height: 40,
@@ -319,6 +344,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
     overflow: 'hidden',
     color: COLORS.white,
+  },
+  avatar: {
+    backgroundColor: 'gray',
   },
 });
 
