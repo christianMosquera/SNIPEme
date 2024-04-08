@@ -18,6 +18,9 @@ const PostDetail = ({route, navigation}: {route:any, navigation:any}) => {
             day: 'numeric'
         });
     }
+    const navigateToProfile = (friendId: string) => {
+        navigation.push('ProfileHome', {user_id:friendId});
+    };
     return (
         <SafeAreaView style={styles.container}>
             <Card>
@@ -25,7 +28,7 @@ const PostDetail = ({route, navigation}: {route:any, navigation:any}) => {
             </Card>
             <View style={styles.details}>
                 <View style={styles.sniperOptions}>
-                    <Text style={styles.text}>{snipe.sniper_username}</Text>
+                    <Text style={styles.text} onPress={() => navigateToProfile(snipe.sniper_id)}>{snipe.sniper_username}</Text>
                     <Button 
                         mode='contained'
                         buttonColor='white'

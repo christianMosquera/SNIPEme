@@ -213,7 +213,7 @@ const CameraScreen = () => {
             onPress={() => setPhotoPath(null)}
             style={{
               position: 'absolute',
-              bottom: 20,
+              bottom: 70,
               left: 50,
               alignSelf: 'flex-start',
               backgroundColor: 'white',
@@ -224,7 +224,7 @@ const CameraScreen = () => {
             onPress={postPhoto}
             style={{
               position: 'absolute',
-              bottom: 20,
+              bottom: 70,
               right: 50,
               alignSelf: 'flex-end',
               backgroundColor: 'black',
@@ -250,7 +250,7 @@ const CameraScreen = () => {
           onPress={takePhoto}
           style={{
             position: 'absolute',
-            bottom: 20,
+            bottom: 70,
             alignSelf: 'center',
             backgroundColor: 'black',
           }}>

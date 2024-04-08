@@ -1,6 +1,6 @@
 // ProfileHeader.tsx
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, SafeAreaView, TouchableOpacity} from 'react-native';
 import {Text, Avatar, IconButton, Switch} from 'react-native-paper';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
@@ -9,6 +9,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {doc, updateDoc} from 'firebase/firestore';
 import {FIREBASE_STORE, FIREBASE_AUTH} from '../../firebase';
 import {useCurrentUser} from '../contexts/UserContext';
+import getUserFriends from '../utils/getUserFriends';
 
 type ProfileHeaderProps = {
   avatarUrl: string | null;
@@ -30,7 +31,20 @@ const ProfileHeader = ({
   isSnipingEnabled = false,
   user_id,
 }: ProfileHeaderProps) => {
+  const [userFriends, setUserFriends] = useState<string[]>([]);
   const currentUser = useCurrentUser();
+
+  useEffect(() => {
+    const fetchUserFriends = async () => {
+      if (FIREBASE_AUTH.currentUser) {
+        const friends = await getUserFriends(FIREBASE_AUTH.currentUser.uid);
+        setUserFriends(friends);
+      } else {
+        console.log('User is not authenticated.');
+      }
+    };
+    fetchUserFriends();
+  }, []);
 
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
@@ -58,6 +72,13 @@ const ProfileHeader = ({
     updateUserSnipingStatus(newSwitchValue);
   };
 
+  const navigateFriends = () => {
+    if (currentUser)
+      if (userFriends.includes(user_id) || user_id === currentUser.uid) {
+        navigation.push('Friends', {user_id: user_id});
+      }
+  };
+
   return (
     <SafeAreaView style={styles.headerContainer}>
       <View style={styles.topContainer}>
@@ -79,32 +100,6 @@ const ProfileHeader = ({
         )}
       </View>
       <View style={styles.middleContainer}>
-        {/* <View style={styles.streakContainer}>
-          <IconButton
-            style={styles.middleContainerIcons}
-            icon="fire"
-            iconColor="white"
-            size={100}
-            onPress={() => console.log('Streak Icon Pressed')}
-          />
-          {typeof streak === 'number' && (
-            <TouchableOpacity
-              style={styles.touchable}
-              onPress={() => console.log('Streak Number Text Button Pressed')}>
-              <Text style={styles.text} variant="titleMedium">
-                {streak}
-              </Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity
-            style={styles.touchable}
-            onPress={() => console.log('Streak Text Button Pressed')}>
-            <Text style={styles.text} variant="titleMedium">
-              Streak
-            </Text>
-          </TouchableOpacity>
-        </View> */}
-
         <View style={styles.nameContainer}>
           {avatarUrl ? (
             <Avatar.Image source={{uri: avatarUrl}} size={110} />
@@ -135,13 +130,6 @@ const ProfileHeader = ({
           </Text>
         </View>
         <View style={styles.friendsContainer}>
-          {/* <IconButton
-            style={styles.middleContainerIcons}
-            icon="target-account"
-            iconColor="white"
-            size={100}
-            onPress={() => navigation.push('Friends', {user_id: user_id})}
-          /> */}
           {typeof friendsCount === 'number' && (
             <TouchableOpacity
               style={styles.touchable}
@@ -160,12 +148,6 @@ const ProfileHeader = ({
           </TouchableOpacity>
         </View>
       </View>
-      {/* <View style={styles.snipingStatusContainer}>
-        <Text style={styles.text} variant="labelLarge">
-          Sniping Status
-        </Text>
-        <Switch color="red" value={isSwitchOn} onValueChange={onToggleSwitch} />
-      </View> */}
     </SafeAreaView>
   );
 };
@@ -202,7 +184,6 @@ const styles = StyleSheet.create({
     // backgroundColor: 'dodgerblue',
     flex: 1,
     alignItems: 'center',
-    // textAlign: 'center',
   },
   friendsContainer: {
     // backgroundColor: 'green',
