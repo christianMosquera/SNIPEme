@@ -1,6 +1,6 @@
 // ProfileHeader.tsx
 
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {StyleSheet, View, SafeAreaView, TouchableOpacity} from 'react-native';
 import {Text, Avatar, IconButton, Switch} from 'react-native-paper';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
@@ -9,7 +9,7 @@ import {useNavigation, useRoute} from '@react-navigation/native';
 import {doc, updateDoc} from 'firebase/firestore';
 import {FIREBASE_STORE, FIREBASE_AUTH} from '../../firebase';
 import {useCurrentUser} from '../contexts/UserContext';
-
+import getUserFriends from '../utils/getUserFriends';
 
 type ProfileHeaderProps = {
   avatarUrl: string | null;
@@ -31,7 +31,20 @@ const ProfileHeader = ({
   isSnipingEnabled = false,
   user_id,
 }: ProfileHeaderProps) => {
+  const [userFriends, setUserFriends] = useState<string[]>([]);
   const currentUser = useCurrentUser();
+
+  useEffect(() => {
+    const fetchUserFriends = async () => {
+      if (FIREBASE_AUTH.currentUser) {
+        const friends = await getUserFriends(FIREBASE_AUTH.currentUser.uid);
+        setUserFriends(friends);
+      } else {
+        console.log('User is not authenticated.');
+      }
+    };
+    fetchUserFriends();
+  }, []);
 
   const navigation =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
@@ -57,6 +70,13 @@ const ProfileHeader = ({
     const newSwitchValue = !isSwitchOn;
     setIsSwitchOn(newSwitchValue);
     updateUserSnipingStatus(newSwitchValue);
+  };
+
+  const navigateFriends = () => {
+    if (currentUser)
+      if (userFriends.includes(user_id) || user_id === currentUser.uid) {
+        navigation.push('Friends', {user_id: user_id});
+      }
   };
 
   return (
@@ -130,7 +150,7 @@ const ProfileHeader = ({
             icon="target-account"
             iconColor="white"
             size={100}
-            onPress={() => navigation.push('Friends', {user_id: user_id})}
+            onPress={() => navigateFriends()}
           />
           {typeof friendsCount === 'number' && (
             <TouchableOpacity

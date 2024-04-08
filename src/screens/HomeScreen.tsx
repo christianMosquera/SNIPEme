@@ -9,6 +9,7 @@ import { getDownloadURL, ref } from 'firebase/storage';
 import {UserContext} from '../contexts/UserContext';
 import {User} from 'firebase/auth';
 import { Button, Dialog, Portal, Text, TextInput } from 'react-native-paper';
+import { EmptyFeedScreen } from './EmptyFeedScreen';
 
 interface dialogContent {
     postId:string,
@@ -147,20 +148,21 @@ const HomeScreen = ({navigation}:any) => {
     return (
         <View style={styles.container}>
             <SafeAreaView style={styles.feed} >
-                <FlatList
-                    data={snipes}
-                    stickyHeaderIndices={[0]}
-                    ListHeaderComponent={<TopNav navigation={navigation}/>}
-                    renderItem={({item}) => <Post key={item.id} snipe={item} navigation={navigation} onPressButton={handlePostButtonPress}/>}
-                    refreshControl={
-                        <RefreshControl
-                            refreshing={isRefreshing}
-                            onRefresh={fetchSnipes}
-                            colors={["#ffffff"]}
-                            tintColor={"#ffffff"}
-                        />
-                    }
-                />
+                    <FlatList
+                        data={snipes}
+                        stickyHeaderIndices={[0]}
+                        ListHeaderComponent={<TopNav navigation={navigation}/>}
+                        renderItem={({item}) => <Post key={item.id} snipe={item} navigation={navigation} onPressButton={handlePostButtonPress}/>}
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={isRefreshing}
+                                onRefresh={fetchSnipes}
+                                colors={["#ffffff"]}
+                                tintColor={"#ffffff"}
+                            />
+                        }
+                        ListEmptyComponent={<EmptyFeedScreen />}
+                    />
                 <Portal>
                     <Dialog visible={visible} onDismiss={hideDialog}>
                         <Dialog.Icon icon="alert" />

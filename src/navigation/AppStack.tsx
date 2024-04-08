@@ -5,7 +5,7 @@
  * @format
  */
 
-import React, { useContext, useEffect } from 'react';
+import React, { createContext, useContext, useEffect, useState } from 'react';
 
 import { NavigationContainer } from '@react-navigation/native';
 
@@ -19,14 +19,22 @@ import { View, Image } from 'react-native';
 
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 const Tab = createMaterialTopTabNavigator();
+import {FIREBASE_AUTH} from '../../firebase';
+import { Platform } from 'react-native';
+import FlashMessage from "react-native-flash-message";
+
+export const NotifContext = createContext<[boolean, React.Dispatch<React.SetStateAction<boolean>>]>([false, () => {}]);
 
 function AppStack(): React.JSX.Element {
   const currentUser = useContext(UserContext);
+  const [newNotification, setNewNotification] = useState(false);
   useEffect(() => {
-    requestUserPermission();
-    NotificationListener();
-    getToken();
-    setToken(currentUser);
+    if (Platform.OS == "android") {
+      requestUserPermission();
+      NotificationListener();
+      getToken();
+      setToken(currentUser);
+    }
   }, [])
   return (
     <NavigationContainer>
