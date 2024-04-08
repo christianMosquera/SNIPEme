@@ -21,32 +21,14 @@ import { UserContext } from '../contexts/UserContext';
 import {FIREBASE_AUTH} from '../../firebase';
 import { View, Image, Text, StyleSheet, TouchableOpacity } from 'react-native';
 
-const Tab = createBottomTabNavigator();
+
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+const Tab = createMaterialTopTabNavigator();
+
 const CustomTabButton = ({children, onPress}:{children:any, onPress?:any}) => (
   <TouchableOpacity
     style = {{
       top: -30,
-      justifyContent: 'center',
-      alignItems: 'center'
-    }}
-    onPress={onPress}
-  >
-    <View style={{
-      width: 100,
-      height:100,
-      borderRadius: 35,
-      backgroundColor: 'transparent'
-    }}>
-      {children}
-
-    </View>
-
-  </TouchableOpacity>
-);
-
-const TabButton = ({children, onPress}:{children:any, onPress?:any}) => (
-  <TouchableOpacity
-    style = {{
       justifyContent: 'center',
       alignItems: 'center'
     }}
@@ -77,7 +59,7 @@ function AppStack(): React.JSX.Element {
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={{
-          headerShown: false,
+          // headerShown: false,
           tabBarShowLabel: false,
           tabBarStyle: {
             position: 'absolute',
@@ -94,7 +76,11 @@ function AppStack(): React.JSX.Element {
           },
           tabBarItemStyle: {
             borderRadius: 15
-          }
+          },
+          tabBarIndicatorStyle: {
+            backgroundColor: "transparent"
+          },
+          
 
         }}
         
@@ -108,7 +94,8 @@ function AppStack(): React.JSX.Element {
                 style={{
                   width:35,
                   height:35,
-                  tintColor: focused ? '#FF16B4' : "#FFFFFF"
+                  tintColor: focused ? '#FF16B4' : "#FFFFFF",
+                  justifyContent: 'center'
                   
                 }}
               />
@@ -127,16 +114,21 @@ function AppStack(): React.JSX.Element {
                 source={require('../assets/icons/crosshair.png')}
                 resizeMode='contain'
                 style = {{
-                  width:85,
-                  height:85,
-                  tintColor: 'white',
+                  width:55,
+                  height:55,
+                  tintColor: focused ? '#FF16B4' : "#FFFFFF",
+                  left: -12,
+                  top: -15,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  
                 }}
               />
               </View>
             ),
-            tabBarButton: (props) => (
-              <CustomTabButton {...props} />
-            )
+            // tabBarButton: (props) => (
+            //   <CustomTabButton {...props} />
+            // )
           }}
         />
 
