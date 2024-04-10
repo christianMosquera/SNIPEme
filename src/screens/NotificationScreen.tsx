@@ -13,6 +13,7 @@ import { RefreshControl } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { HomeStackParamList } from '../types/HomeStackParamList';
+import { black } from 'react-native-paper/lib/typescript/styles/themes/v2/colors';
 
 interface NotificationType {
   sender_id: string;
@@ -53,8 +54,8 @@ const NotificationScreen = () => {
               <Icon source="human-greeting-variant" color='white' size={45}/>
               <View style={styles.textContainer}>
                   <Text style={styles.text}>Follow requests</Text>
-                  <Text style={styles.text}>Approve or ignore requests</Text>
               </View>
+              <Icon source="chevron-right" color='white' size={26} />
           </View>
         </TouchableOpacity>
         <View style={styles.notificationContainer}>
@@ -80,14 +81,22 @@ const styles = StyleSheet.create({
   requestContainer: {
     flexDirection: 'row',
     alignSelf: 'center',
-    paddingHorizontal:24,
+    marginHorizontal: 12,
+    paddingHorizontal:12,
+    paddingVertical: 8,
+    borderStyle: 'solid',
+    borderColor: 'white',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderRadius: 8,
+    backgroundColor: '#d2bacf'
   },
   textContainer: {
     flex: 1,
-    marginLeft: 25
+    marginLeft: 25,
+    
   },
   notificationContainer: {
-    marginTop: 26,
     paddingHorizontal: 12
   }
 });
