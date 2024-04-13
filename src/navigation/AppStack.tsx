@@ -21,6 +21,7 @@ import { UserContext } from '../contexts/UserContext';
 import {FIREBASE_AUTH} from '../../firebase';
 import { Platform } from 'react-native';
 import FlashMessage from "react-native-flash-message";
+import { getFcmToken, registerListenerWithFCM } from '../utils/pushnotificationios';
 
 const Tab = createBottomTabNavigator();
 function AppStack(): React.JSX.Element {
@@ -31,6 +32,14 @@ function AppStack(): React.JSX.Element {
       NotificationListener();
       getToken();
       setToken(currentUser);
+    } else {
+      getFcmToken(currentUser?.uid);
+    }
+  }, [])
+  useEffect(() => {
+    if (Platform.OS == "ios") {
+      const unsubscribe = registerListenerWithFCM();
+      return unsubscribe;
     }
   }, [])
   return (

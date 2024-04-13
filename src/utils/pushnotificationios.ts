@@ -1,14 +1,21 @@
 import notifee, {EventType} from '@notifee/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import messaging from '@react-native-firebase/messaging';
 import {PERMISSIONS, request} from 'react-native-permissions';
+import { FIREBASE_STORE } from '../../firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 //method was called to get FCM tiken for notification
-export const getFcmToken = async () => {
+export const getFcmToken = async (currentUserUid: any) => {
   let token = null;
   await checkApplicationNotificationPermission();
   await registerAppWithFCM();
   try {
     token = await messaging().getToken();
     console.log('getFcmToken-->', token);
+    const usersRef = doc(FIREBASE_STORE, 'Users', currentUserUid);
+    await updateDoc(usersRef, {
+      device_token: token,
+    });
   } catch (error) {
     console.log('getFcmToken Device Token error ', error);
   }
