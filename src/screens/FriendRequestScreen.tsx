@@ -13,7 +13,7 @@ interface FriendType {
   imageUrl: string;
 }
 
-const NotificationsScreen = () => {
+const FriendRequestScreen = () => {
   const [friendRequests, setFriendRequests] = useState<FriendType[]>([]);
 
   useEffect(() => {
@@ -123,4 +123,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default NotificationsScreen;
+export default FriendRequestScreen;
