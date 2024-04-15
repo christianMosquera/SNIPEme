@@ -41,7 +41,7 @@ const HomeStack = () => {
         component={PostDetail}
       />
       <Stack.Screen
-        name="AddFriend"
+        name="AddFriendHome"
         options={{
           headerTransparent: true,
           headerLeft: () => <ArrowHeader />,
