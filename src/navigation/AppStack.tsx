@@ -126,6 +126,7 @@ function AppStack(): React.JSX.Element {
 
         />
       </Tab.Navigator>
+      <FlashMessage position="top" />
     </NavigationContainer>
   );
 }
