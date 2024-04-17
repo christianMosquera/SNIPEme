@@ -31,6 +31,7 @@ import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {Avatar} from 'react-native-paper';
 import {sendNotification} from '../utils/pushnotification';
+import {HomeStackParamList} from '../types/HomeStackParamList';
 
 interface FriendType {
   id: string;
@@ -45,10 +46,12 @@ interface FriendType {
 
 const {width: screenWidth, height: screenHeight} = Dimensions.get('window');
 const AddFriendScreen = () => {
-  const route = useRoute<RouteProp<ProfileStackParamList>>();
+  const route = useRoute();
   const [searchTerm, setSearchTerm] = useState('');
   const [users, setUsers] = useState<FriendType[]>([]);
-  const navigation =
+  const navigationHome =
+    useNavigation<NativeStackNavigationProp<HomeStackParamList>>();
+  const navigationProfile =
     useNavigation<NativeStackNavigationProp<ProfileStackParamList>>();
 
   const searchUsers = async (text: string) => {
@@ -287,7 +290,12 @@ const AddFriendScreen = () => {
 
   const navigateToProfile = (friendId: string) => {
     console.log(`Navigating to profile of friend with ID: ${friendId}`);
-    navigation.push('ProfileMain', {user_id: friendId});
+    console.log(route.name);
+    if (route.name === 'AddFriendHome') {
+      navigationHome.push('ProfileHome', {user_id: friendId});
+    } else {
+      navigationProfile.push('ProfileMain', {user_id: friendId});
+    }
   };
 
   return (
