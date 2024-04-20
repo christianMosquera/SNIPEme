@@ -6,7 +6,7 @@ import {Text, Avatar, IconButton, Switch} from 'react-native-paper';
 import {ProfileStackParamList} from '../types/ProfileStackParamList';
 import {NativeStackNavigationProp} from '@react-navigation/native-stack';
 import {useNavigation, useRoute} from '@react-navigation/native';
-import {doc, updateDoc} from 'firebase/firestore';
+import {collection, doc, getDoc, getDocs, query, updateDoc, where} from 'firebase/firestore';
 import {FIREBASE_STORE, FIREBASE_AUTH} from '../../firebase';
 import {useCurrentUser} from '../contexts/UserContext';
 import getUserFriends from '../utils/getUserFriends';
@@ -61,6 +61,24 @@ const ProfileHeader = ({
         isSnipingEnabled: isEnabled,
       });
       console.log('Updated sniping status successfully');
+
+      // Need to handle the case where the user turns
+      // off their sniping status before being sniped
+      if (!isEnabled) {
+        // Empty the current user's target
+        const targetDocRef = doc(FIREBASE_STORE, 'Targets', currentUser.uid);
+        await updateDoc(targetDocRef, {
+          target_id: '',
+        });
+
+        // If the user has already been sniped, no more to do
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const postsCollection = collection(FIREBASE_STORE, 'Posts');
+        const postsQuery = query(postsCollection, where('target_id', '==', currentUser.uid), where('timestamp', '>=', today));
+        const postsResult = await getDocs(postsQuery);
+        if (!postsResult.empty) return;
+      }
     } catch (error) {
       console.error('Error updating sniping status:', error);
     }
