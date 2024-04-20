@@ -78,6 +78,37 @@ const ProfileHeader = ({
         const postsQuery = query(postsCollection, where('target_id', '==', currentUser.uid), where('timestamp', '>=', today));
         const postsResult = await getDocs(postsQuery);
         if (!postsResult.empty) return;
+
+        // Remove the user from any place they are a target
+        const targetsCollection = collection(FIREBASE_STORE, 'Targets');
+        const targetsQuery = query(targetsCollection, where('target_id', '==', currentUser.uid));
+        const targetsResult = await getDocs(targetsQuery)
+        const snipers = targetsResult.docs;
+        // Get current user's zipcode
+        const userDoc = doc(FIREBASE_STORE, 'Users', currentUser.uid);
+        const userDocResult = await getDoc(userDoc);
+        const currentZipCode = userDocResult.data()?.zipcode;
+        for (const user of snipers) {
+          // Get the snipable friends of the user
+          const sniperFriends = await getUserFriends(user.id);
+          const usersCollection = collection(FIREBASE_STORE, 'Users');
+          const usersQuery = query(usersCollection);
+          const usersResult = await getDocs(usersQuery);
+          const users = usersResult.docs
+                        .filter(doc => doc.data().zipcode == currentZipCode && doc.data().isSnipingEnabled && sniperFriends.includes(doc.id))
+                        .map(doc => doc.id);
+
+          // Set the user's target to the new target
+          // If they have no friends, they get no target
+          let target = null;
+          if (users.length != 0) {
+            // Otherwise, assign a random target
+            target = users[Math.floor(Math.random() * users.length)];
+          }
+          updateDoc(user.ref, { target_id: target });
+
+          console.log("Gave", user.id, "new target", target);
+        }
       }
     } catch (error) {
       console.error('Error updating sniping status:', error);
