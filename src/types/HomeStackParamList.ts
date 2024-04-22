@@ -5,5 +5,5 @@ export type HomeStackParamList = {
   Notification: undefined;
   ProfileHome: {user_id: string};
   Friends: undefined;
-  AddFriend: undefined;
+  AddFriendHome: undefined;
 };
