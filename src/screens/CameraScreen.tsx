@@ -8,7 +8,7 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {useIsFocused} from '@react-navigation/native';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
 import {
   Camera,
   useCameraDevice,
@@ -99,6 +99,16 @@ const CameraScreen = () => {
   const [currentTarget, setCurrentTarget] = useState<string | null>(null);
   const [targetAvatar, setTargetAvatar] = useState('');
   const [targetUsername, setTargetUsername] = useState('');
+  const [showDefaultAvatar, setShowDefaultAvatar] = useState(true);
+
+  //Handle navigation to target profile
+  const navigation = useNavigation();
+  // Navigate to profile function
+  // const navigateToProfile = targetId => {
+  //   if (targetId) {
+  //     navigation.navigate('ProfileMain', {userId: targetId}); // Replace 'Profile' with the actual route name and parameter
+  //   }
+  // };
 
   useEffect(() => {
     if (!currentUser) return;
@@ -121,6 +131,13 @@ const CameraScreen = () => {
     });
   }, [currentUser]);
 
+  useEffect(() => {
+    if (targetAvatar) {
+      // If there is a target avatar, set showDefaultAvatar to false
+      setShowDefaultAvatar(false);
+    }
+  }, [targetAvatar]);
+
   const getImageUrlAndUsername = async (
     avatar_url: string,
     targetId: string,
@@ -128,8 +145,14 @@ const CameraScreen = () => {
     const storage = FIREBASE_STORAGE;
     const imageRef = ref(storage, avatar_url);
     try {
-      const url = await getDownloadURL(imageRef);
-      setTargetAvatar(url);
+      if (avatar_url) {
+        // Check if the avatar URL exists
+        const url = await getDownloadURL(imageRef);
+        console.log('Target Avatar URL: ', url);
+        setTargetAvatar(url);
+      } else {
+        setShowDefaultAvatar(true); // If no avatar URL, show the default avatar
+      }
 
       // Assuming the username is stored in the user document
       const userRef = doc(FIREBASE_STORE, 'Users', targetId);
@@ -138,8 +161,6 @@ const CameraScreen = () => {
         const name = userDoc.data().name; // Make sure this is the correct field for username
         setTargetUsername(name);
       }
-
-      console.log('Target Avatar URL: ', url);
     } catch (error) {
       console.error(
         'Error getting download URL or username for Target in Camera Page:',
@@ -272,18 +293,29 @@ const CameraScreen = () => {
     if (!device) {
       return <Text>Loading...</Text>;
     }
-    if (!photoPath && targetAvatar) {
+    if (!photoPath) {
       return (
         <View style={styles.back}>
-          <Image
-            source={{uri: targetAvatar}}
-            style={styles.targetAvatarOverlay}
-            onError={error => {
-              console.error('Image loading failed:', error);
-            }}
-          />
-          <Text style={styles.targetUsernameLabel}>
-            Target: {targetUsername}
+          {/* Conditionally render the target avatar if it exists */}
+          {targetAvatar ? (
+            <Image
+              source={{uri: targetAvatar}}
+              style={styles.targetAvatarOverlay}
+              onError={error => {
+                console.error('Image loading failed:', error);
+                // Handle error for image loading here, if necessary
+              }}
+            />
+          ) : null}
+
+          {/* Adjust the position of the username text depending on whether there's an avatar */}
+          <Text
+            style={[
+              styles.targetUsernameLabel,
+              // If there's no avatar, apply the additional style to move the text up
+              !targetAvatar && styles.noAvatarTextPosition,
+            ]}>
+            {`Target: ${targetUsername || 'No target!'}`}
           </Text>
           <Camera
             ref={camera}
@@ -297,7 +329,7 @@ const CameraScreen = () => {
             onPress={takePhoto}
             style={{
               position: 'absolute',
-              bottom: 90,
+              bottom: 70,
               alignSelf: 'center',
               backgroundColor: 'white',
             }}
@@ -390,9 +422,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     zIndex: 10,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    borderRadius: 10,
-    padding: 5,
+    borderRadius: 20,
+    padding: 8,
+    paddingHorizontal: 11,
     overflow: 'hidden',
+  },
+  noAvatarTextPosition: {
+    // Additional styling to move text up when there is no avatar
+    top: 40, // Adjust the value as needed to position the text higher
   },
 });
 
