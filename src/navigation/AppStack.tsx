@@ -24,8 +24,9 @@ import {View, Image} from 'react-native';
 import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
 const Tab = createMaterialTopTabNavigator();
 import {FIREBASE_AUTH} from '../../firebase';
-import {Platform} from 'react-native';
-import FlashMessage from 'react-native-flash-message';
+import { Platform } from 'react-native';
+import FlashMessage from "react-native-flash-message";
+import { getFcmToken, registerListenerWithFCM } from '../utils/pushnotificationios';
 
 export const NotifContext = createContext<
   [boolean, React.Dispatch<React.SetStateAction<boolean>>]
@@ -40,6 +41,14 @@ function AppStack(): React.JSX.Element {
       NotificationListener();
       getToken();
       setToken(currentUser);
+    } else {
+      getFcmToken(currentUser?.uid);
+    }
+  }, [])
+  useEffect(() => {
+    if (Platform.OS == "ios") {
+      const unsubscribe = registerListenerWithFCM();
+      return unsubscribe;
     }
   }, []);
   return (
