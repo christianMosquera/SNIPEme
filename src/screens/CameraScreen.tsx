@@ -14,14 +14,15 @@ import {
   useCameraDevice,
   useCameraPermission,
 } from 'react-native-vision-camera';
-import {Button} from 'react-native-paper';
-import {ref, uploadBytes} from 'firebase/storage';
+import {Avatar, Button, Icon, IconButton} from 'react-native-paper';
+import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
 import {FIREBASE_STORAGE, FIREBASE_STORE} from '../../firebase';
 import {UserContext} from '../contexts/UserContext';
 import {User} from 'firebase/auth';
 import {doc, getDoc, setDoc} from 'firebase/firestore';
 import { getUsername, sendNotification } from '../utils/pushnotification';
 import useUserData from '../utils/useUserData';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const CameraScreen = () => {
   const currentUser = useContext(UserContext);
@@ -96,17 +97,38 @@ const CameraScreen = () => {
 
   // Handle target
   const [currentTarget, setCurrentTarget] = useState<string | null>(null);
+  const [targetAvatar, setTargetAvatar] = useState('');
   useEffect(() => {
     if (!currentUser) return;
-
+    let targetId = '';
     // Query the database for the sniper's name
     const targetRef = doc(FIREBASE_STORE, 'Targets', currentUser.uid);
     getDoc(targetRef).then(result => {
       if (result.exists()) {
-        setCurrentTarget(result.data().target_id);
+        targetId = result.data().target_id;
+        setCurrentTarget(targetId);
+        let targetAvatarUrl = '';
+        const targetAvatarRef = doc(FIREBASE_STORE, 'Users', targetId)
+        getDoc(targetAvatarRef).then(result => {
+          if (result.exists()) {
+            targetAvatarUrl = result.data().avatar_url;
+            getImageUrl(targetAvatarUrl);
+          }
+        });
       }
     });
   }, [currentUser]);
+
+  const getImageUrl = async (avatar_url: string) => {
+    const storage = FIREBASE_STORAGE;
+    const imageRef = ref(storage, avatar_url);
+    try {
+      const url = await getDownloadURL(imageRef);
+      setTargetAvatar(url);
+    } catch (error) {
+      console.error('Error getting download URL in Post:', error);
+    }
+  };
 
   // Handle posting
   async function postPhoto() {
@@ -238,59 +260,54 @@ const CameraScreen = () => {
       return <Text>Loading...</Text>;
     }
     return (
-      <View style={StyleSheet.absoluteFill}>
+      <View style={styles.back}>
         <Camera
           ref={camera}
           photo={true}
-          style={StyleSheet.absoluteFill}
+          style={styles.camera}
           device={device}
           isActive={isActive}
         />
-        <Button
+        <IconButton
+          icon={'checkbox-blank-circle-outline'}
           onPress={takePhoto}
           style={{
             position: 'absolute',
-            bottom: 70,
+            bottom: 90,
             alignSelf: 'center',
-            backgroundColor: 'black',
-          }}>
-          <Text style={{color: 'white'}}>Take Photo</Text>
-        </Button>
-        <Button
-          onPress={cycleFlash}
-          style={{
-            position: 'absolute',
-            top: 20,
-            left: 20,
-            alignSelf: 'flex-start',
-            backgroundColor: 'black',
-          }}>
-          <Text style={{color: 'white'}}>Flash ( {flash} )</Text>
-        </Button>
-        <Button
+            backgroundColor:'white',
+          }}
+          size={80}
+          iconColor='black'
+        />
+        <IconButton
+        icon={flash === 'on' ? 'flash' : 'flash-'+flash}
+        onPress={cycleFlash}
+        style={{
+          position: 'absolute',
+          bottom: 90,
+          left: 30,
+          alignSelf: 'flex-start',
+          backgroundColor: "#272626"
+        }}
+        iconColor='white'
+        size={40}
+        />
+        <IconButton 
+          icon={'autorenew'}
           onPress={() =>
             setCameraDirection(cameraDirection === 'back' ? 'front' : 'back')
           }
           style={{
             position: 'absolute',
-            top: 20,
-            right: 20,
+            bottom: 90,
+            right: 30,
             alignSelf: 'flex-end',
-            backgroundColor: 'black',
-          }}>
-          <Text style={{color: 'white'}}>Flip</Text>
-        </Button>
-        <Text
-          style={{
-            position: 'absolute',
-            top: 20,
-            alignSelf: 'center',
-            backgroundColor: 'black',
-            color: 'white',
-            fontSize: 20,
-          }}>
-          SNIPEme
-        </Text>
+            backgroundColor: "#272626"
+          }}
+          size={40}
+          iconColor='white'
+        />
       </View>
     );
   } else {
@@ -313,6 +330,21 @@ const styles = StyleSheet.create({
     color: 'red',
     textAlign: 'center',
   },
+  camera: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 220,
+  },
+  back: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: 'black'
+  }
 });
 
 export default CameraScreen;
