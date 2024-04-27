@@ -148,7 +148,6 @@ const CameraScreen = () => {
       if (avatar_url) {
         // Check if the avatar URL exists
         const url = await getDownloadURL(imageRef);
-        console.log('Target Avatar URL: ', url);
         setTargetAvatar(url);
       } else {
         setShowDefaultAvatar(true); // If no avatar URL, show the default avatar
@@ -265,11 +264,16 @@ const CameraScreen = () => {
     if (photoPath) {
       return (
         <View style={StyleSheet.absoluteFill}>
+          <Image
+            style={StyleSheet.absoluteFill}
+            src={'file://' + photoPath}
+            alt="captured photo"
+          />
           <Button
             onPress={() => setPhotoPath(null)}
             style={{
               position: 'absolute',
-              bottom: 70,
+              bottom: 110,
               left: 50,
               alignSelf: 'flex-start',
               backgroundColor: 'white',
@@ -280,7 +284,7 @@ const CameraScreen = () => {
             onPress={postPhoto}
             style={{
               position: 'absolute',
-              bottom: 70,
+              bottom: 110,
               right: 50,
               alignSelf: 'flex-end',
               backgroundColor: 'black',
@@ -329,7 +333,7 @@ const CameraScreen = () => {
             onPress={takePhoto}
             style={{
               position: 'absolute',
-              bottom: 70,
+              bottom: 110,
               alignSelf: 'center',
               backgroundColor: 'white',
             }}
@@ -341,7 +345,7 @@ const CameraScreen = () => {
             onPress={cycleFlash}
             style={{
               position: 'absolute',
-              bottom: 90,
+              bottom: 110,
               left: 30,
               alignSelf: 'flex-start',
               backgroundColor: '#272626',
@@ -356,7 +360,7 @@ const CameraScreen = () => {
             }
             style={{
               position: 'absolute',
-              bottom: 90,
+              bottom: 110,
               right: 30,
               alignSelf: 'flex-end',
               backgroundColor: '#272626',

@@ -12,6 +12,7 @@ const MESSAGETITLE = new Map<string, string>([
   ['approved', 'Snipe approved!'],
   ['rejected', 'Snipe rejected!'],
   ['friend', 'Friend request'],
+  ['accepted', 'Friend request']
 ]);
 
 const MESSAGEBODY = new Map<string, string>([
@@ -19,13 +20,15 @@ const MESSAGEBODY = new Map<string, string>([
   ['approved', 'approved your snipe! Snipe has been posted.'],
   ['rejected', 'rejected your snipe! Snipe has been deleted.'],
   ['friend', 'requested to follow you.'],
+  ['accepted', 'accepted your follow request.']
 ]);
 
 const DISPLAYMESSAGE = new Map<string, string>([
   ['sniped', 'sniped you!'],
   ['approved', 'approved your snipe!'],
   ['rejected', 'rejected your snipe!'],
-  ['friend', 'requested to follow you'],
+  ['friend', 'requested to follow you!'],
+  ['accepted', 'accepted your follow request!'],
 ]);
 
 export async function requestUserPermission() {

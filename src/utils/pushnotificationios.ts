@@ -4,15 +4,18 @@ import messaging from '@react-native-firebase/messaging';
 import {PERMISSIONS, request} from 'react-native-permissions';
 import { FIREBASE_STORE } from '../../firebase';
 import { doc, updateDoc } from 'firebase/firestore';
+import { User } from 'firebase/auth';
+import { showMessage } from 'react-native-flash-message';
+type MessageType = "none" | "default" | "info" | "success" | "danger" | "warning";
 //method was called to get FCM tiken for notification
-export const getFcmToken = async (currentUserUid: any) => {
+export const getFcmToken = async (currentUser: User) => {
   let token = null;
   await checkApplicationNotificationPermission();
   await registerAppWithFCM();
   try {
     token = await messaging().getToken();
     console.log('getFcmToken-->', token);
-    const usersRef = doc(FIREBASE_STORE, 'Users', currentUserUid);
+    const usersRef = doc(FIREBASE_STORE, 'Users', currentUser?.uid);
     await updateDoc(usersRef, {
       device_token: token,
     });
@@ -90,11 +93,18 @@ export function registerListenerWithFCM() {
       remoteMessage?.notification?.title &&
       remoteMessage?.notification?.body
     ) {
-      onDisplayNotification(
-        remoteMessage.notification?.title,
-        remoteMessage.notification?.body,
-        remoteMessage?.data,
-      );
+      const type : MessageType = "default"
+      const notification = {
+        message: remoteMessage.notification?.title,
+        description: remoteMessage.notification?.body,
+        type: type,
+        backgroundColor: "white", // background color
+        color: "black", // text color
+        onPress: () => {
+          console.log("pressed!");
+        }
+      }
+      showMessage(notification);
     }
   });
   notifee.onForegroundEvent(({type, detail}) => {

@@ -22,6 +22,7 @@ import {
 } from 'firebase/firestore';
 import {modifyFriendsCount} from '../utils/friendsCountUtil';
 import {Avatar} from 'react-native-paper';
+import { sendNotification } from '../utils/pushnotification';
 
 type FriendRequestProps = {
   userId: string;
@@ -70,6 +71,13 @@ const FriendRequest = ({
 
       await modifyFriendsCount(currentUserId, 1);
       await modifyFriendsCount(pendingRequestId, 1);
+
+      const notification = {
+        target_id: pendingRequestId,
+        sender_id: currentUserId,
+        message_type: 'accepted',
+      };
+      sendNotification(notification);
     }
   };
 
