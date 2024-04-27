@@ -21,8 +21,8 @@ import {
 import {UserContext} from '../contexts/UserContext';
 import {View, Image} from 'react-native';
 
-import {createMaterialTopTabNavigator} from '@react-navigation/material-top-tabs';
-const Tab = createMaterialTopTabNavigator();
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+const Tab = createBottomTabNavigator();
 import {FIREBASE_AUTH} from '../../firebase';
 import { Platform } from 'react-native';
 import FlashMessage from "react-native-flash-message";
@@ -42,9 +42,10 @@ function AppStack(): React.JSX.Element {
       getToken();
       setToken(currentUser);
     } else {
-      getFcmToken(currentUser?.uid);
+      if (currentUser == null) return;
+      getFcmToken(currentUser);
     }
-  }, [])
+  }, [currentUser])
   useEffect(() => {
     if (Platform.OS == "ios") {
       const unsubscribe = registerListenerWithFCM();
@@ -55,23 +56,19 @@ function AppStack(): React.JSX.Element {
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={{
+          headerShown: false,
           tabBarShowLabel: false,
           tabBarStyle: {
             position: 'absolute',
-            bottom: 10,
             left: 20,
             right: 20,
             backgroundColor: 'transparent',
-            borderRadius: 15,
             opacity: 1,
             elevation: 27,
-            borderColor: 'transparent',
+            borderTopWidth: 0
           },
           tabBarItemStyle: {
             borderRadius: 15,
-          },
-          tabBarIndicatorStyle: {
-            backgroundColor: 'transparent',
           },
         }}>
         <Tab.Screen
@@ -108,7 +105,6 @@ function AppStack(): React.JSX.Element {
                     width: 55,
                     height: 55,
                     tintColor: focused ? '#FF16B4' : '#FFFFFF',
-                    left: -12,
                     top: -15,
                     justifyContent: 'center',
                     alignItems: 'center',
