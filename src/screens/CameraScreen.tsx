@@ -8,20 +8,21 @@ import {
   Image,
   ActivityIndicator,
 } from 'react-native';
-import {useIsFocused} from '@react-navigation/native';
+import {useNavigation, useIsFocused} from '@react-navigation/native';
 import {
   Camera,
   useCameraDevice,
   useCameraPermission,
 } from 'react-native-vision-camera';
-import {Button} from 'react-native-paper';
-import {ref, uploadBytes} from 'firebase/storage';
+import {Avatar, Button, Icon, IconButton} from 'react-native-paper';
+import {getDownloadURL, ref, uploadBytes} from 'firebase/storage';
 import {FIREBASE_STORAGE, FIREBASE_STORE} from '../../firebase';
 import {UserContext} from '../contexts/UserContext';
 import {User} from 'firebase/auth';
 import {doc, getDoc, setDoc} from 'firebase/firestore';
-import { getUsername, sendNotification } from '../utils/pushnotification';
+import {getUsername, sendNotification} from '../utils/pushnotification';
 import useUserData from '../utils/useUserData';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 const CameraScreen = () => {
   const currentUser = useContext(UserContext);
@@ -96,17 +97,76 @@ const CameraScreen = () => {
 
   // Handle target
   const [currentTarget, setCurrentTarget] = useState<string | null>(null);
+  const [targetAvatar, setTargetAvatar] = useState('');
+  const [targetUsername, setTargetUsername] = useState('');
+  const [showDefaultAvatar, setShowDefaultAvatar] = useState(true);
+
+  //Handle navigation to target profile
+  const navigation = useNavigation();
+  // Navigate to profile function
+  // const navigateToProfile = targetId => {
+  //   if (targetId) {
+  //     navigation.navigate('ProfileMain', {userId: targetId}); // Replace 'Profile' with the actual route name and parameter
+  //   }
+  // };
+
   useEffect(() => {
     if (!currentUser) return;
-
+    let targetId = '';
     // Query the database for the sniper's name
     const targetRef = doc(FIREBASE_STORE, 'Targets', currentUser.uid);
     getDoc(targetRef).then(result => {
       if (result.exists()) {
-        setCurrentTarget(result.data().target_id);
+        targetId = result.data().target_id;
+        setCurrentTarget(targetId);
+        let targetAvatarUrl = '';
+        const targetAvatarRef = doc(FIREBASE_STORE, 'Users', targetId);
+        getDoc(targetAvatarRef).then(result => {
+          if (result.exists()) {
+            targetAvatarUrl = result.data().avatar_url;
+            getImageUrlAndUsername(targetAvatarUrl, targetId);
+          }
+        });
       }
     });
   }, [currentUser]);
+
+  useEffect(() => {
+    if (targetAvatar) {
+      // If there is a target avatar, set showDefaultAvatar to false
+      setShowDefaultAvatar(false);
+    }
+  }, [targetAvatar]);
+
+  const getImageUrlAndUsername = async (
+    avatar_url: string,
+    targetId: string,
+  ) => {
+    const storage = FIREBASE_STORAGE;
+    const imageRef = ref(storage, avatar_url);
+    try {
+      if (avatar_url) {
+        // Check if the avatar URL exists
+        const url = await getDownloadURL(imageRef);
+        setTargetAvatar(url);
+      } else {
+        setShowDefaultAvatar(true); // If no avatar URL, show the default avatar
+      }
+
+      // Assuming the username is stored in the user document
+      const userRef = doc(FIREBASE_STORE, 'Users', targetId);
+      const userDoc = await getDoc(userRef);
+      if (userDoc.exists()) {
+        const name = userDoc.data().name; // Make sure this is the correct field for username
+        setTargetUsername(name);
+      }
+    } catch (error) {
+      console.error(
+        'Error getting download URL or username for Target in Camera Page:',
+        error,
+      );
+    }
+  };
 
   // Handle posting
   async function postPhoto() {
@@ -182,8 +242,8 @@ const CameraScreen = () => {
     const notification = {
       target_id: currentTarget,
       sender_id: currentUser.uid,
-      message_type: 'sniped'
-    }
+      message_type: 'sniped',
+    };
     sendNotification(notification);
   }
 
@@ -213,7 +273,7 @@ const CameraScreen = () => {
             onPress={() => setPhotoPath(null)}
             style={{
               position: 'absolute',
-              bottom: 70,
+              bottom: 110,
               left: 50,
               alignSelf: 'flex-start',
               backgroundColor: 'white',
@@ -224,7 +284,7 @@ const CameraScreen = () => {
             onPress={postPhoto}
             style={{
               position: 'absolute',
-              bottom: 70,
+              bottom: 110,
               right: 50,
               alignSelf: 'flex-end',
               backgroundColor: 'black',
@@ -237,62 +297,80 @@ const CameraScreen = () => {
     if (!device) {
       return <Text>Loading...</Text>;
     }
-    return (
-      <View style={StyleSheet.absoluteFill}>
-        <Camera
-          ref={camera}
-          photo={true}
-          style={StyleSheet.absoluteFill}
-          device={device}
-          isActive={isActive}
-        />
-        <Button
-          onPress={takePhoto}
-          style={{
-            position: 'absolute',
-            bottom: 70,
-            alignSelf: 'center',
-            backgroundColor: 'black',
-          }}>
-          <Text style={{color: 'white'}}>Take Photo</Text>
-        </Button>
-        <Button
-          onPress={cycleFlash}
-          style={{
-            position: 'absolute',
-            top: 20,
-            left: 20,
-            alignSelf: 'flex-start',
-            backgroundColor: 'black',
-          }}>
-          <Text style={{color: 'white'}}>Flash ( {flash} )</Text>
-        </Button>
-        <Button
-          onPress={() =>
-            setCameraDirection(cameraDirection === 'back' ? 'front' : 'back')
-          }
-          style={{
-            position: 'absolute',
-            top: 20,
-            right: 20,
-            alignSelf: 'flex-end',
-            backgroundColor: 'black',
-          }}>
-          <Text style={{color: 'white'}}>Flip</Text>
-        </Button>
-        <Text
-          style={{
-            position: 'absolute',
-            top: 20,
-            alignSelf: 'center',
-            backgroundColor: 'black',
-            color: 'white',
-            fontSize: 20,
-          }}>
-          SNIPEme
-        </Text>
-      </View>
-    );
+    if (!photoPath) {
+      return (
+        <View style={styles.back}>
+          {/* Conditionally render the target avatar if it exists */}
+          {targetAvatar ? (
+            <Image
+              source={{uri: targetAvatar}}
+              style={styles.targetAvatarOverlay}
+              onError={error => {
+                console.error('Image loading failed:', error);
+                // Handle error for image loading here, if necessary
+              }}
+            />
+          ) : null}
+
+          {/* Adjust the position of the username text depending on whether there's an avatar */}
+          <Text
+            style={[
+              styles.targetUsernameLabel,
+              // If there's no avatar, apply the additional style to move the text up
+              !targetAvatar && styles.noAvatarTextPosition,
+            ]}>
+            {`Target: ${targetUsername || 'No target!'}`}
+          </Text>
+          <Camera
+            ref={camera}
+            photo={true}
+            style={styles.camera}
+            device={device}
+            isActive={isActive}
+          />
+          <IconButton
+            icon={'checkbox-blank-circle-outline'}
+            onPress={takePhoto}
+            style={{
+              position: 'absolute',
+              bottom: 110,
+              alignSelf: 'center',
+              backgroundColor: 'white',
+            }}
+            size={80}
+            iconColor="black"
+          />
+          <IconButton
+            icon={flash === 'on' ? 'flash' : 'flash-' + flash}
+            onPress={cycleFlash}
+            style={{
+              position: 'absolute',
+              bottom: 110,
+              left: 30,
+              alignSelf: 'flex-start',
+              backgroundColor: '#272626',
+            }}
+            iconColor="white"
+            size={40}
+          />
+          <IconButton
+            icon={'autorenew'}
+            onPress={() =>
+              setCameraDirection(cameraDirection === 'back' ? 'front' : 'back')
+            }
+            style={{
+              position: 'absolute',
+              bottom: 110,
+              right: 30,
+              alignSelf: 'flex-end',
+              backgroundColor: '#272626',
+            }}
+            size={40}
+            iconColor="white"
+          />
+        </View>
+      );
+    }
   } else {
     return (
       <Text>No access to camera. Go to your settings to provide access.</Text>
@@ -312,6 +390,50 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: 'red',
     textAlign: 'center',
+  },
+  camera: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 220,
+  },
+  back: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    bottom: 0,
+    backgroundColor: 'black',
+  },
+  targetAvatarOverlay: {
+    position: 'absolute',
+    left: '50%',
+    top: 60, // Adjust as needed
+    width: 60, // Adjust as needed
+    height: 60, // Adjust as needed
+    borderRadius: 30, // This makes it round
+    transform: [{translateX: -25}, {translateY: -25}], // Center the element
+    zIndex: 10, // Make sure it's above other UI elements
+  },
+  targetUsernameLabel: {
+    position: 'absolute',
+    top: 110, // Adjust as needed to position below the avatar image
+    alignSelf: 'center', // Center the text element within the parent view
+    color: 'white',
+    textAlign: 'center', // Center the text within the text element
+    fontSize: 16,
+    fontWeight: 'bold',
+    zIndex: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    borderRadius: 20,
+    padding: 8,
+    paddingHorizontal: 11,
+    overflow: 'hidden',
+  },
+  noAvatarTextPosition: {
+    // Additional styling to move text up when there is no avatar
+    top: 40, // Adjust the value as needed to position the text higher
   },
 });
 

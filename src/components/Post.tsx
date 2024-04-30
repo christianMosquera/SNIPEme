@@ -72,8 +72,10 @@ const Post = ({
     const storage = FIREBASE_STORAGE;
     const imageRef = ref(storage, avatar_url);
     try {
-      const url = await getDownloadURL(imageRef);
-      setImageUrl(url);
+      if (imageRef) {
+        const url = await getDownloadURL(imageRef);
+        setImageUrl(url);
+      }
     } catch (error) {
       console.error('Error getting download URL in Post:', error);
     }
@@ -89,7 +91,10 @@ const Post = ({
   };
 
   React.useEffect(() => {
-    getImageUrl(snipe.target_avatar_url);
+    console.log(snipe.target_avatar_url);
+    if (snipe.target_avatar_url) {
+      getImageUrl(snipe.target_avatar_url);
+    }
     setIsOwner(currentUser?.uid == snipe.sniper_id);
   }, []);
   return (
